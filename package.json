@@ -1,0 +1,34 @@
+{
+  "name": "a-coroa-de-ferro",
+  "version": "9.0.0",
+  "description": "Roguelike top-down brasileiro sobre ética e confiança em IA. Folclore, filosofia jogável e um jogo inteiro num único arquivo HTML.",
+  "author": "Lucas Franceschi Assis de Oliveira",
+  "license": "MIT",
+  "private": false,
+  "homepage": "https://a-coroa-de-ferro.vercel.app",
+  "keywords": [
+    "game",
+    "roguelike",
+    "html5-game",
+    "canvas",
+    "javascript",
+    "philosophy",
+    "brazilian-folklore",
+    "educational-game",
+    "pt-br"
+  ],
+  "scripts": {
+    "check": "node ferramentas/check.js src/coroa.html && node --check /tmp/bundle.js",
+    "build": "node ferramentas/build.js",
+    "teste": "node testes/teste-v2.js",
+    "teste:salas": "node testes/final.js",
+    "teste:folclore": "node testes/folc.js",
+    "teste:energia": "node testes/combate.js",
+    "teste:balanco": "node testes/bal2.js",
+    "teste:chegada": "node testes/chegada.js",
+    "teste:trilha": "node testes/tsteste.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.48.0"
+  }
+}

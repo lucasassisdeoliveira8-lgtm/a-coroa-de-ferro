@@ -1,0 +1,14 @@
+{
+  "name": "A Coroa de Ferro",
+  "short_name": "Coroa de Ferro",
+  "description": "Roguelike top-down com folclore brasileiro e filosofia como mecânica.",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0B0908",
+  "theme_color": "#0B0908",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "/icone.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
