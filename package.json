@@ -19,7 +19,7 @@
   ],
   "scripts": {
     "check": "node ferramentas/check.js src/coroa.html && node --check /tmp/bundle.js",
-    "build": "node ferramentas/build.js",
+    "gerar": "node ferramentas/build.js",
     "teste": "node testes/teste-v2.js",
     "teste:salas": "node testes/final.js",
     "teste:folclore": "node testes/folc.js",
