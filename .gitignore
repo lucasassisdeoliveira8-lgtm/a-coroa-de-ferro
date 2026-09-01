@@ -1,0 +1,21 @@
+# dependencias
+node_modules/
+package-lock.json
+
+# saida offline gerada por "npm run gerar" (o index.html vai versionado)
+jogo-a-coroa-de-ferro.html
+
+# sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# editores
+.vscode/
+.idea/
+*.swp
+
+# logs e temporarios
+*.log
+npm-debug.log*
+.vercel
