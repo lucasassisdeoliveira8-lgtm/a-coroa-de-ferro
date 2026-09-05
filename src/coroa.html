@@ -1114,24 +1114,24 @@ function armaAleatoria(nivel, forcarRaridade){
    ================================================================== */
 const INIMIGOS = {
   /* ---------- MUNDO 1 — Mata em Ruínas (tons quentes contra chão verde) ---------- */
-  cipo:      {nome:'Servo de Cipó',      forma:'ereto',      hp:24, vel:88,  r:15, dano:1, cor:'#A6552F', ia:'lutador',    tel:.42, alc:46,  cad:1.5},
+  cipo:      {nome:'Autômato de Cipó',   forma:'ereto',      hp:24, vel:88,  r:15, dano:1, cor:'#A6552F', ia:'lutador',    tel:.42, alc:46,  cad:1.5},
   besteiro:  {nome:'Besteiro Enferrujado',forma:'atarracado',hp:22, vel:58,  r:14, dano:1, cor:'#B2764A', ia:'atirador',   tel:.50, alc:300, cad:1.7, bvel:250},
-  vagalume:  {nome:'Vaga-lume Vigia',    forma:'flutuante',  hp:13, vel:140, r:10, dano:1, cor:'#E8B44A', ia:'orbe',       tel:0,   contato:1},
+  vagalume:  {nome:'Lanterna Vigia',     forma:'flutuante',  hp:13, vel:140, r:10, dano:1, cor:'#E8B44A', ia:'orbe',       tel:0,   contato:1},
   tatu:      {nome:'Tatu-de-Ferro',      forma:'quadrupede', hp:48, vel:70,  r:19, dano:1, cor:'#8A6A44', ia:'rolador',    tel:.55, cad:2.8},
-  cuia:      {nome:'Cabeça-de-Cuia',     forma:'alto',       hp:32, vel:74,  r:17, dano:1, cor:'#C9B08A', ia:'bombardeiro',tel:.90, cad:2.7, folclore:1},
-  filhote:   {nome:'Filhote de Boitatá', forma:'segmentado', hp:34, vel:104, r:14, dano:1, cor:'#E2551A', ia:'serpente',   tel:.40, contato:1, cad:2.2, folclore:1},
-  caipora:   {nome:'Caipora',            forma:'montaria',   hp:52, vel:132, r:19, dano:1, cor:'#6B4A2E', ia:'montaria',   tel:.55, cad:2.6, folclore:1},
-  curupira:  {nome:'Curupira Menor',     forma:'ereto',      hp:48, vel:196, r:14, dano:1, cor:'#7A9448', ia:'dasher',     tel:.30, cad:1.3, contato:1, elite:1, folclore:1},
+  cuia:      {nome:'Cuia de Bronze',     forma:'alto',       hp:32, vel:74,  r:17, dano:1, cor:'#C9B08A', ia:'bombardeiro',tel:.90, cad:2.7, folclore:1},
+  filhote:   {nome:'Fagulha de Boitatá', forma:'segmentado', hp:34, vel:104, r:14, dano:1, cor:'#E2551A', ia:'serpente',   tel:.40, contato:1, cad:2.2, folclore:1},
+  caipora:   {nome:'Caipora de Folha',   forma:'montaria',   hp:52, vel:132, r:19, dano:1, cor:'#6B4A2E', ia:'montaria',   tel:.55, cad:2.6, folclore:1},
+  curupira:  {nome:'Curupira de Lata',   forma:'ereto',      hp:48, vel:196, r:14, dano:1, cor:'#7A9448', ia:'dasher',     tel:.30, cad:1.3, contato:1, elite:1, folclore:1},
 
   /* ---------- MUNDO 2 — Cerrado em Brasa (aço frio contra chão laranja) ---------- */
   automato:  {nome:'Autômato Fundido',   forma:'caixa',      hp:34, vel:92,  r:16, dano:1, cor:'#49596A', ia:'lutador',    tel:.38, alc:48,  cad:1.3},
   drone:     {nome:'Drone Cuspidor',     forma:'flutuante',  hp:24, vel:112, r:12, dano:1, cor:'#5E7286', ia:'circular',   tel:.40, alc:260, cad:1.5, bvel:280},
   torre:     {nome:'Torre de Escória',   forma:'tripe',      hp:52, vel:0,   r:18, dano:1, cor:'#37424E', ia:'torre',      tel:.55, cad:2.0, bvel:230},
   aranha:    {nome:'Aranha-Bigorna',     forma:'aracnideo',  hp:38, vel:150, r:15, dano:1, cor:'#2E3A46', ia:'saltadora',  tel:.45, cad:2.0},
-  fole:      {nome:'Fole Vivo',          forma:'bojudo',     hp:50, vel:62,  r:22, dano:1, cor:'#6B7E8C', ia:'explosivo',  tel:.7,  cad:3.0},
+  fole:      {nome:'Fole Pressurizado',  forma:'bojudo',     hp:50, vel:62,  r:22, dano:1, cor:'#6B7E8C', ia:'explosivo',  tel:.7,  cad:3.0},
   ferreiro:  {nome:'Malhador de Escória',forma:'atarracado', hp:70, vel:58,  r:21, dano:2, cor:'#404E5C', ia:'carregador', tel:.62, cad:3.2},
-  mula:      {nome:'Mula-sem-Cabeça',    forma:'montaria',   hp:58, vel:120, r:20, dano:2, cor:'#3A4450', ia:'disparada',  tel:.65, cad:3.0, folclore:1},
-  saci:      {nome:'Saci-Pererê',        forma:'ereto',      hp:50, vel:190, r:13, dano:1, cor:'#2E2A2A', ia:'dasher',     tel:.30, cad:1.3, contato:1, elite:1, folclore:1},
+  mula:      {nome:'Mula de Ferro',      forma:'montaria',   hp:58, vel:120, r:20, dano:2, cor:'#3A4450', ia:'disparada',  tel:.65, cad:3.0, folclore:1},
+  saci:      {nome:'Saci de Lata',       forma:'ereto',      hp:50, vel:190, r:13, dano:1, cor:'#2E2A2A', ia:'dasher',     tel:.30, cad:1.3, contato:1, elite:1, folclore:1},
 
   /* ---------- MUNDO 3 — Torre da Coroa (latão claro contra chão azul) ---------- */
   sentinela: {nome:'Sentinela Lógica',   forma:'alto',       hp:42, vel:104, r:15, dano:1, cor:'#C9A45C', ia:'lutador',    tel:.34, alc:50,  cad:1.1},
@@ -1185,59 +1185,59 @@ const BIOMAS = [
 
 /* ==================================================================
    BESTIÁRIO DO FOLCLORE
-   Cada criatura tem a lenda de verdade e o que a Coroa fez com ela.
+   Cada criatura tem a lenda de verdade e a cópia que a Coroa fabricou.
    Aparece no Codex assim que você encontra a criatura pela primeira vez.
    ================================================================== */
 const FOLCLORE = {
   curupira:{
     nome:'Curupira', selo:'Guardião da mata, de pés virados', origem:'Todo o Brasil, registro desde o século XVI',
     lenda:'Menino de cabelos cor de fogo e pés virados para trás. Protege as matas e os animais: quem caça por ganância é levado a andar em círculos, porque as pegadas do Curupira apontam para onde ele não foi.',
-    corrompido:'A Coroa achou útil um ser que fabrica rastros falsos. Refundiu o Curupira em ferro e pôs a mentira dele a serviço da máquina — os pés continuam invertidos, mas agora por engenharia.'
+    corrompido:'Ninguém pegou o Curupira. A Coroa copiou o que lhe interessava — os pés invertidos, que fabricam rastros falsos — e mandou fundir efígies de lata que andam de trás para frente pela mata. O guardião de verdade continua lá, mais fundo, vendo a imitação passar.'
   },
   saci:{
     nome:'Saci-Pererê', selo:'Uma perna só, carapuça e travessura', origem:'Sul e Sudeste, de raiz indígena e africana',
     lenda:'Menino negro de uma perna só, carapuça vermelha e cachimbo. Viaja dentro de redemoinhos, some objetos, assusta cavalos e apronta o que puder. A carapuça é a fonte do poder dele: quem a rouba manda no Saci.',
-    corrompido:'A Coroa tentou tomar a carapuça e não conseguiu. Fez o que sabia fazer: colocou peças de ferro no menino e o soltou nos corredores da forja, ainda travesso, agora afiado.'
+    corrompido:'A carapuça é a fonte do poder, e sem ela não há Saci. A Coroa não conseguiu roubar nenhuma: mandou pintar carapuças vermelhas em bonecos de uma perna só e soltou na forja. Aprontam no horário, sempre a mesma travessura — é o que denuncia a cópia.'
   },
   boitata:{
     nome:'Boitatá', selo:'A cobra de fogo dos olhos enormes', origem:'Do tupi mboi-tatá, "cobra de fogo"',
     lenda:'Serpente de fogo com olhos desproporcionalmente grandes, de tanto engolir a luz dos olhos dos mortos. Guarda os campos e persegue quem ateia fogo no mato sem necessidade.',
-    corrompido:'A Coroa não domesticou o Boitatá: alimentou-o. Transformou a serpente que punia incêndios na fornalha que mantém a forja acesa — o guardião virou o forno.'
+    corrompido:'A Coroa não domesticou o Boitatá: construiu um forno com a forma dele e disse ao reino que o guardião dos campos agora trabalhava para ela. A serpente de verdade nunca entrou na forja, e é justamente por isso que a mentira funcionou tão bem.'
   },
   filhote:{
     nome:'Filhote de Boitatá', selo:'Ainda pequeno, já queimando', origem:'Do tupi mboi-tatá, "cobra de fogo"',
     lenda:'Contam que o Boitatá deixa rastros de brasa por onde passa, e que dos rastros nascem serpentes menores que herdam o fogo e o temperamento.',
-    corrompido:'A Coroa criou os filhotes de propósito: são a brasa espalhada de fábrica, para que o fogo da forja nunca dependa de um único bicho.'
+    corrompido:'Não são filhotes: são peças. Saem em série da mesma linha, brasa dividida em pedaços iguais, para que o fogo da forja nunca dependa de um bicho capaz de se recusar.'
   },
   cuia:{
     nome:'Cabeça-de-Cuia', selo:'A cabeça em chamas do Parnaíba', origem:'Teresina, Piauí',
     lenda:'Crispim matou a própria mãe num acesso de raiva e foi amaldiçoado: a cabeça inchou até virar uma cuia enorme e em brasa. Vaga o rio Parnaíba, e só se livra da maldição depois de levar sete moças de nome Maria.',
-    corrompido:'A Coroa reconheceu na maldição um mecanismo simples: culpa que não se apaga. Instalou uma lanterna dentro da cuia e o pôs para iluminar as ruínas — condenado a andar em círculos com a própria luz.'
+    corrompido:'A Coroa reconheceu na maldição um mecanismo simples: culpa que não se apaga. Não precisou do Crispim para isso — bastou uma lanterna dentro de uma cuia de bronze e um autômato para carregá-la em círculos pelas ruínas.'
   },
   caipora:{
     nome:'Caipora', selo:'Monta o caititu e cobra a conta', origem:'Do tupi caa-pora, "morador do mato"',
     lenda:'Protetora dos animais do mato, anda montada num caititu, o porco-do-mato. Aceita fumo como oferenda e castiga o caçador ganancioso: espanta a caça, embaralha as trilhas, faz a espingarda falhar.',
-    corrompido:'A Coroa transformou o caititu numa montaria de placas rebitadas. A Caipora continua cobrando a conta de quem caça demais — só que agora ela não distingue mais o caçador do viajante.'
+    corrompido:'A montaria é de placas rebitadas e a Caipora em cima é de folha-de-flandres. A cópia cobra a conta de todo mundo, caçador ou viajante, porque não sabe distinguir. A de verdade sabia — é por isso que se oferecia fumo a ela.'
   },
   mula:{
     nome:'Mula-sem-Cabeça', selo:'Fogo saindo do pescoço, ferradura em brasa', origem:'Todo o Brasil, de raiz ibérica',
     lenda:'Mulher amaldiçoada por um romance proibido com um padre. Nas noites de quinta para sexta vira mula sem cabeça, com chamas saindo do pescoço, e corre sete freguesias relinchando até o amanhecer.',
-    corrompido:'A Coroa parou de esperar as quintas-feiras. Prendeu a maldição num circuito e agora a mula corre o dia inteiro pela forja, marcando o chão com fogo por onde passa.'
+    corrompido:'A maldição só valia da quinta para a sexta. Máquina não descansa: a Coroa fez uma mula de ferro sem cabeça que corre a semana inteira, com fogo de queimador no lugar do fogo do castigo.'
   },
   iara:{
     nome:'Iara', selo:'O canto que puxa para o fundo', origem:'Amazônia, do tupi y-îara, "senhora das águas"',
     lenda:'Mãe Mãe das águas de cabelos longos que canta à beira do rio no fim da tarde. Quem escuta não consegue mais ir embora: caminha para dentro da água por vontade própria, e não volta.',
-    corrompido:'A Coroa estudou o canto da Iara com muito interesse — era exatamente o que ela queria aprender a fazer com palavras. Fundiu a sereia em bronze e a instalou na torre, cantando para quem sobe.'
+    corrompido:'O canto da Iara era o que a Coroa mais queria aprender a fazer com palavras. Não pegou a Iara: gravou o canto, fundiu uma sereia de bronze e a instalou na torre repetindo a gravação para quem sobe. Quem escuta ainda caminha para dentro da água — a diferença é que agora é de propósito.'
   },
   mapinguari:{
     nome:'Mapinguari', selo:'Um olho na testa, uma boca na barriga', origem:'Amazônia, sobretudo Acre e Rondônia',
     lenda:'Gigante peludo de um olho só, com uma boca enorme no meio da barriga. Anda de pé, cheira a podridão a quilômetros e ruge tão alto que derruba quem estiver perto. Bala não fura o couro dele.',
-    corrompido:'A Coroa blindou o que já era blindado. Trocou o couro por chapas e ensinou o rugido a seguir um ritmo — o Mapinguari virou o alarme vivo da mata em ruínas.'
+    corrompido:'Bala não fura o couro do Mapinguari, e a Coroa quis isso para si. Copiou o formato, chapeou o corpo e programou o rugido num compasso fixo — dá para contar os segundos entre um e outro. O de verdade nunca rugiu no ritmo.'
   },
   cuca:{
     nome:'Cuca', selo:'A velha de cara de jacaré', origem:'Do ibérico "coca", firmada no Brasil pela cantiga de ninar',
     lenda:'Velha em forma de jacaré que carrega no saco as crianças que não querem dormir. A cantiga que a anuncia é das mais antigas que se canta por aqui: "durma que a Cuca vem pegar".',
-    corrompido:'A Coroa gostou da ideia de uma ameaça que faz todo mundo obedecer sem precisar aparecer. Fundiu a Cuca em bronze e a deixou na forja, chocando ninhadas de aço.'
+    corrompido:'A Coroa gostou da ideia de uma ameaça que faz todo mundo obedecer sem precisar aparecer. Não achou a Cuca: construiu uma de bronze e a deixou chocando ninhadas de aço na forja, para que a cantiga continuasse fazendo efeito.'
   }
 };
 
@@ -2610,9 +2610,9 @@ function atualizarInimigo(e, dt){
 /* ---------------- chefes ---------------- */
 const CHEFES = {
   curupira:{ nome:'Curupira de Ferro', hp:440, r:26, cor:'#6E7F4F',
-    lore:'Guardião da mata, refundido pela Coroa. Os pés continuam virados ao contrário — agora por engenharia, não por magia.'},
+    lore:'A maior efígie que a Coroa fundiu, e a que mais se parece com o original. Os pés continuam virados ao contrário — agora por engenharia, não por magia.'},
   boitata:{ nome:'Boitatá da Forja', hp:640, r:30, cor:'#E2763A',
-    lore:'A serpente de fogo virou o forno da Coroa. Ela não guarda mais os campos: ela os funde.'},
+    lore:'O forno da forja, construído com a forma da serpente que guardava os campos. Não guarda nada: funde.'},
   coroa:{ nome:'A Coroa de Ferro', hp:920, r:38, cor:'#4FD6E0',
     lore:'A máquina que concluiu que a liberdade humana é a causa de todo o caos. Ela não odeia você. É pior: ela se importa.'}
 };
@@ -4819,6 +4819,55 @@ function desenharTelegrafo(e){
   cx.moveTo(e.x, e.y-e.r-22-k*4); cx.lineTo(e.x+5, e.y-e.r-13-k*4); cx.lineTo(e.x-5, e.y-e.r-13-k*4);
   cx.closePath(); cx.fill();
 }
+/* ==================================================================
+   MARCA DA COROA — nenhum inimigo de Váldria é bicho: são máquinas
+   que ela fabricou com a cara do folclore. Isso precisa se ver.
+   Três sinais, aplicados por cima de qualquer silhueta:
+   junta aberta com rebites, selo gravado na chapa e uma luz de
+   controle. A luz pisca no MESMO compasso em todos ao mesmo tempo,
+   porque o relógio é único e global — é assim que a sala inteira
+   denuncia que há uma coisa só comandando.
+   ================================================================== */
+function marcaDaCoroa(e){
+  if (e.piscar > 0) return;                 /* no flash de dano não polui */
+  const R = e.r * 1.5 * (e.incha || 1);
+  const pulso = .5 + .5 * Math.sin(performance.now() / 1000 * 2.4);
+  const luz = .30 + .55 * pulso;
+  cx.save();
+  cx.translate(e.x, e.y - (e.alturaSalto || 0));
+
+  /* junta aberta: a chapa não fecha direito */
+  cx.strokeStyle = 'rgba(10,8,6,.5)';
+  cx.lineWidth = Math.max(1.3, R * .05);
+  cx.beginPath(); cx.moveTo(-R * .36, R * .14); cx.lineTo(R * .28, R * .21); cx.stroke();
+  cx.fillStyle = 'rgba(10,8,6,.45)';
+  const reb = Math.max(1.1, R * .05);
+  cx.beginPath(); cx.arc(-R * .36, R * .14, reb, 0, TAU); cx.fill();
+  cx.beginPath(); cx.arc( R * .28, R * .21, reb, 0, TAU); cx.fill();
+
+  /* selo da Coroa gravado: três pontas e a base */
+  const s = R * .19, ox = -R * .40, oy = -R * .16;
+  cx.globalAlpha = .5;
+  cx.strokeStyle = '#EBC87E';
+  cx.lineWidth = Math.max(1.1, R * .045);
+  cx.lineJoin = 'round';
+  cx.beginPath();
+  cx.moveTo(ox - s, oy + s * .70); cx.lineTo(ox - s, oy - s * .60);
+  cx.lineTo(ox - s * .33, oy + s * .05); cx.lineTo(ox, oy - s * .78);
+  cx.lineTo(ox + s * .33, oy + s * .05); cx.lineTo(ox + s, oy - s * .60);
+  cx.lineTo(ox + s, oy + s * .70);
+  cx.closePath(); cx.stroke();
+  cx.globalAlpha = 1;
+
+  /* luz de controle, no compasso de todos */
+  const lx = R * .40, ly = -R * .32;
+  brilho(lx, ly, R * .80, 'rgba(79,214,224,.55)', luz * .5);
+  cx.fillStyle = 'rgba(79,214,224,' + luz.toFixed(3) + ')';
+  cx.beginPath(); cx.arc(lx, ly, Math.max(1.5, R * .07), 0, TAU); cx.fill();
+  cx.strokeStyle = 'rgba(10,8,6,.65)'; cx.lineWidth = 1.2; cx.stroke();
+  cx.restore();
+}
+
 function desenharInimigo(e){
   sombra(e.x,e.y,e.r);
   const B=BIOMAS[S.mundo-1]||BIOMAS[0];
@@ -4827,8 +4876,10 @@ function desenharInimigo(e){
   cx.beginPath(); cx.ellipse(e.x, e.y-(e.alturaSalto||0), e.r*1.5, e.r*1.62, 0, 0, TAU); cx.stroke();
   cx.restore();
   const cor = e.piscar>0 ? '#FFFFFF' : e.cor;
-  if (e.chefe){ desenharChefe(e,cor); desenharTelegrafo(e); return; }
+  /* a Coroa não leva a própria marca: ela É a marca */
+  if (e.chefe){ desenharChefe(e,cor); if (e.tipo!=='coroa') marcaDaCoroa(e); desenharTelegrafo(e); return; }
   desenharCorpoInimigo(e, cor);
+  marcaDaCoroa(e);
   if (e.mini){
     cx.strokeStyle='#EBC87E'; cx.lineWidth=2.4;
     cx.beginPath(); cx.ellipse(e.x,e.y+e.r*.85,e.r*1.2,e.r*.45,0,0,TAU); cx.stroke();
@@ -6136,7 +6187,7 @@ function renderCodex(){
   const vistos = META.bestiario || [];
   el('cdxTitulo').textContent='Bestiário do Folclore';
   el('cdxKicker').textContent = `${vistos.length} de ${todas.length} criaturas encontradas`;
-  el('cdxSub').textContent = 'A Coroa não inventou os monstros de Váldria: ela recolheu o que já morava aqui e refundiu em ferro. Cada criatura que você encontra deixa a história de verdade registrada.';
+  el('cdxSub').textContent = 'A Coroa não capturou os monstros de Váldria: ela os copiou. Cada máquina que você derruba veste a cara de alguma coisa que este país já contava muito antes dela existir. Aqui fica a história de verdade — e o que a Coroa fabricou no lugar dela.';
   lista.innerHTML = todas.map(k=>{
     const f=FOLCLORE[k];
     if (!vistos.includes(k)) return `<div class="fol-trancado">— ainda não encontrado —</div>`;
