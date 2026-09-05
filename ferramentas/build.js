@@ -92,8 +92,11 @@ const paginaOffline = monta('')
   .replace(/^.*(og:|twitter:).*$/gm, '')
   .replace(/\n{3,}/g, '\n\n');
 
-fs.writeFileSync(SAIDA, paginaWeb);
-fs.writeFileSync(SAIDA_OFFLINE, paginaOffline);
+/* Quebra de linha no fim: é assim que o GitHub grava os arquivos, então o
+   index.html do repositório e o gerado aqui ficam idênticos, sem diferença
+   fantasma aparecendo no git a cada npm run gerar. */
+fs.writeFileSync(SAIDA, paginaWeb + '\n');
+fs.writeFileSync(SAIDA_OFFLINE, paginaOffline + '\n');
 
 console.log('index.html gerado:', paginaWeb.length, 'bytes —', titulo, '—', SITE);
 console.log('jogo-a-coroa-de-ferro.html (offline):', paginaOffline.length, 'bytes');
