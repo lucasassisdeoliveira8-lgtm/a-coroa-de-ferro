@@ -61,18 +61,33 @@ const cabeca = `<meta charset="utf-8">
 <style>*,*::before,*::after{box-sizing:border-box}body{margin:0}img,canvas{display:block;max-width:100%}</style>
 ${cabecaDoSrc}`;
 
-const paginaWeb = `<!doctype html>
+/* Registro do service worker: é o que faz o jogo instalar como aplicativo
+   e abrir sem internet. O arquivo sw.js fica na raiz, ao lado do index.html.
+   Caminho relativo de propósito, para funcionar também fora da raiz. */
+const REGISTRO_SW = `<script>
+if ('serviceWorker' in navigator) {
+  addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function (e) { console.warn('sw:', e); });
+  });
+}
+<\/script>`;
+
+const monta = (registro) => `<!doctype html>
 <html lang="pt-BR">
 <head>
 ${cabeca}
 </head>
 <body>
 ${corpoDoSrc}
+${registro}
 </body>
 </html>`;
 
-/* Versão offline: sem ícone, manifesto e capa, que dependem do servidor. */
-const paginaOffline = paginaWeb
+const paginaWeb = monta(REGISTRO_SW);
+
+/* Versão offline: arquivo solto, sem ícone, manifesto, capa nem service
+   worker — tudo isso depende de estar servido por um servidor. */
+const paginaOffline = monta('')
   .replace(/^.*rel="(icon|apple-touch-icon|manifest)".*$/gm, '')
   .replace(/^.*(og:|twitter:).*$/gm, '')
   .replace(/\n{3,}/g, '\n\n');
