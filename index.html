@@ -3,48 +3,36 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="description" content="Roguelike top-down sobre uma maquina que decidiu que a liberdade humana e a causa do caos.">
-<meta name="theme-color" content="#100E0C">
+<meta name="description" content="Roguelike top-down brasileiro sobre confiar (ou não) em uma máquina. Váldria, folclore, filosofia e uma coroa de ferro que decidiu proteger o reino de si mesmo.">
+<meta name="theme-color" content="#0B0908">
+<meta name="author" content="Lucas Franceschi Assis de Oliveira">
+<link rel="icon" href="/icone.png" type="image/png">
+<link rel="apple-touch-icon" href="/icone.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="A Coroa de Ferro">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="A Coroa de Ferro">
+<meta property="og:title" content="A Coroa de Ferro">
+<meta property="og:description" content="Uma máquina concluiu que a liberdade humana é a causa do caos. Você vai até a torre discordar. Roguelike top-down com folclore brasileiro e filosofia como mecânica.">
+<meta property="og:image" content="https://a-coroa-de-ferro.vercel.app/capa.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://a-coroa-de-ferro.vercel.app/">
+<meta property="og:locale" content="pt_BR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="A Coroa de Ferro">
+<meta name="twitter:description" content="Roguelike top-down com folclore brasileiro e filosofia como mecânica. Jogue no navegador, de graça.">
+<meta name="twitter:image" content="https://a-coroa-de-ferro.vercel.app/capa.png">
 <style>*,*::before,*::after{box-sizing:border-box}body{margin:0}img,canvas{display:block;max-width:100%}</style>
-  <meta name="description" content="Roguelike top-down brasileiro sobre confiar (ou não) em uma máquina. Váldria, folclore, filosofia e uma coroa de ferro que decidiu proteger o reino de si mesmo.">
-  <meta name="theme-color" content="#0B0908">
-  <meta name="author" content="Lucas Franceschi Assis de Oliveira">
-  <link rel="icon" href="/icone.png" type="image/png">
-  <link rel="apple-touch-icon" href="/icone.png">
-  <link rel="manifest" href="/manifest.json">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="A Coroa de Ferro">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="A Coroa de Ferro">
-  <meta property="og:title" content="A Coroa de Ferro">
-  <meta property="og:description" content="Uma máquina concluiu que a liberdade humana é a causa do caos. Você vai até a torre discordar. Roguelike top-down com folclore brasileiro e filosofia como mecânica.">
-  <meta property="og:image" content="https://a-coroa-de-ferro.vercel.app/capa.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:url" content="https://a-coroa-de-ferro.vercel.app/">
-  <meta property="og:locale" content="pt_BR">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="A Coroa de Ferro">
-  <meta name="twitter:description" content="Roguelike top-down com folclore brasileiro e filosofia como mecânica. Jogue no navegador, de graça.">
-  <meta name="twitter:image" content="https://a-coroa-de-ferro.vercel.app/capa.png">
-  <!-- ==========================================================
-       ENDEREÇO DO SITE
-       As quatro linhas abaixo (og:image, og:url, twitter:image)
-       usam https://a-coroa-de-ferro.vercel.app
-       Se o Vercel te der um endereço diferente, troque
-       https://a-coroa-de-ferro.vercel.app pelo endereço certo nas linhas
-       acima — é só isso que muda. Serve para a capa aparecer quando
-       você manda o link no WhatsApp, Discord ou X.
-       ========================================================== -->
-</head>
-<body>
 <title>A Coroa de Ferro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Spectral:ital,wght@0,300;0,400;0,600;1,400&family=Barlow+Condensed:wght@400;500;600;700&display=swap">
-
+</head>
+<body>
 <style>
 /* ==================================================================
    A COROA DE FERRO — v2
@@ -6460,5 +6448,12 @@ mostrarTela('menu');
 requestAnimationFrame(laco);
 </script>
 
+<script>
+if ('serviceWorker' in navigator) {
+  addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function (e) { console.warn('sw:', e); });
+  });
+}
+</script>
 </body>
 </html>
