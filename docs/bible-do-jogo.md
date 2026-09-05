@@ -147,10 +147,27 @@ Bodoque de Aroeira, Cajado de Jabuticaba, Machadinha do Vaqueiro, Foice de Debul
 
 ## Inimigos e folclore
 
-21 inimigos únicos com telegrafia obrigatória, baralhos por mundo, variação procedural por
-instância e paleta que contrasta com o chão. Dez criaturas do folclore — Curupira, Saci,
-Boitatá, Caipora, Mula sem Cabeça, Iara, Mapinguari, Cuca, Cuia, Filhote — com lenda, selo e
-versão corrompida pela Coroa, catalogadas no **Bestiário** dentro do Codex.
+26 inimigos únicos com telegrafia obrigatória, baralhos por mundo, variação procedural por
+instância e paleta que contrasta com o chão.
+
+**Nenhum inimigo é um ser vivo.** Todos são máquinas que a Coroa fabricou com a forma do
+folclore, porque ela entendeu que as pessoas obedecem mais rápido a um rosto que já amam ou
+já temem. O Saci de verdade nunca foi pego: o que corre pela forja é um boneco de uma perna
+só com a carapuça pintada. Isso resolve a ética de matar inimigos — o que se destrói é
+propaganda, não vítima — e é a própria tese do jogo sobre confiar numa máquina que imita
+o que a gente reconhece.
+
+Três sinais marcam toda máquina, aplicados por cima de qualquer silhueta em `marcaDaCoroa()`:
+junta aberta com rebites, selo da Coroa gravado na chapa e uma luz de controle que **pisca no
+mesmo compasso em todas ao mesmo tempo**, num relógio global — é assim que a sala inteira
+denuncia que há uma coisa só comandando. A Coroa em si não leva a marca: ela é a marca.
+
+As dez criaturas do folclore — Curupira, Saci, Boitatá, Caipora, Mula sem Cabeça, Iara,
+Mapinguari, Cuca, Cuia, Filhote — continuam no **Bestiário** dentro do Codex, com a lenda
+real intacta. O que mudou é o segundo parágrafo de cada verbete: não é mais o que a Coroa
+fez *com* a criatura, e sim a cópia que ela fabricou no lugar. Cada verbete termina com o
+sinal que denuncia a falsificação — o rugido do Mapinguari em compasso fixo, a travessura
+do Saci sempre no horário.
 
 ## Mundos
 
