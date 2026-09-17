@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.a_coroa_de_ferro.twa",
+        "sha256_cert_fingerprints": ["4F:1B:84:62:04:12:40:DB:EF:4C:2C:6E:6A:5E:37:69:AA:B6:9A:7E:52:25:FF:03:52:A4:F3:04:01:E3:AB:8E"]
+      }
+    }]
