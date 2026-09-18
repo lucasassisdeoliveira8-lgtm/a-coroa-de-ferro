@@ -5698,7 +5698,10 @@ function alternarPausa(){
       <p style="font-size:14px;color:#9C9081">Andar: WASD/setas &middot; Mirar e atirar: mouse &middot; Esquiva: Espaço &middot; Habilidade: Q &middot; Trocar de arma: Tab (ou 1 e 2) &middot; Interagir: E &middot; Som: M</p>`,
     acoes:[
       {t:'Continuar', primaria:true, fn:()=>{ fecharPainel(); S.pausado=false; S.pausaAberta=false; }},
-      {t:'Opções', fn:()=>{ S.pausaAberta=false; abrirOpcoes(()=>{ alternarPausa(); }); }},
+      /* Voltar das Opções precisa devolver a tela para 'jogo' antes de chamar
+         alternarPausa(): a função sai fora se a tela não for 'jogo', e era por
+         isso que o botão não fazia nada quando as Opções vinham da pausa. */
+      {t:'Opções', fn:()=>{ S.pausaAberta=false; abrirOpcoes(()=>{ mostrarTela('jogo'); alternarPausa(); }); }},
       {t:'Abandonar', fn:()=>{ S.pausaAberta=false; S.rodando=false; S.pausado=false; fecharPainel(); mostrarTela('menu'); atualizarPlacar(); }}
     ]
   });
