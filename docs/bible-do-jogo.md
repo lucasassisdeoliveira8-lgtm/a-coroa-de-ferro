@@ -133,17 +133,56 @@ cutscene), **Barlow Condensed** (HUD).
 
 ## Armas
 
-18 arquétipos × 10 comportamentos × 20 adjetivos com concordância × 7 elementos × 5 raridades.
-Desenhadas em partes: corpo, ponta, empunhadura, gema da raridade, efeito do elemento — o
-mesmo desenho na mão e no chão.
+**Arsenal novo (novembro de 2026).** O arsenal antigo (espada, besta, bodoque, berrante...)
+foi aposentado inteiro. O novo tem 19 armas de três origens — **folclore brasileiro**,
+**ferramentas do povo** e **máquinas tomadas da Coroa** — e 6 únicas novas.
 
-Custo de energia por tiro (base, antes da raridade): zarabatana 0,7 · repetidora 1,1 ·
-besta 3,0 · bodoque 3,2 · arco 3,4 (escala com a carga) · machadinha 4,4 · cajado 4,6 ·
-berrante 5,4 · bacamarte 7,0 · lança-frascos 7,5 · canhão 11 · roda de lâminas 13 ·
-vara de éter 0,75 por tique. Melee: custo 0, gera energia.
+| Arma | Origem | Tipo | Comportamento |
+|---|---|---|---|
+| Facão de Mato | povo | perto | corte largo e rápido |
+| Marreta da Forja | máquina | perto | golpe lento + onda de choque no chão |
+| Lança de Pesca | povo | perto | estoca; segurando, é arremessada e volta na corda |
+| Cauda do Boitatá | folclore | perto | chicote de fogo que deixa brasa |
+| Berimbau de Luta | povo | perto | o terceiro golpe seguido solta uma onda de som |
+| Manopla de Engrenagens | máquina | perto | socos rápidos; três seguidos atordoam |
+| Boleadeira | povo | longe | prende o inimigo atingido |
+| Tarrafa | povo | longe | rede em leque que deixa lento |
+| Arco do Curupira | folclore | longe | carrega; a flecha faz a curva e acerta pelas costas (×1,6) |
+| Estilingue de Forquilha | povo | longe | pedras que quicam nas paredes |
+| Canto da Iara | folclore | longe | onda que atravessa e empurra |
+| Garrafada | povo | longe | cada frasco sai fogo, veneno ou fumaça |
+| Ferradura em Brasa | folclore | longe | vai e volta deixando brasa |
+| Cuia de Pimenta | povo | longe | nuvem em cone que queima |
+| Penas do Uirapuru | folclore | longe | penas teleguiadas, uma por inimigo |
+| Muiraquitã | folclore | especial | sapinhos de jade orbitam o herói |
+| Autômato Desobediente | máquina | especial | drone que atira sozinho e às vezes "discorda" do alvo |
+| Olho da Torre | máquina | especial | feixe contínuo |
+| Pião de Ferro | povo | especial | lançado no chão, gira 4 s acertando quem chega perto |
 
-Únicas brasileiras: Berrante de Ferro, Peixeira do Sertão, Zarabatana da Mata,
-Bodoque de Aroeira, Cajado de Jabuticaba, Machadinha do Vaqueiro, Foice de Debulha.
+Iniciais de cada herói (a primeira arma achada na jornada é sempre a parceira):
+Duarte — Facão + Marreta · Jandira — Arco do Curupira + Lança · Bento — Berimbau + Canto
+da Iara · Ondina — Garrafada + Cuia de Pimenta.
+
+Destravadas pela Ordem: Cauda do Boitatá, Manopla, Ferradura, Penas do Uirapuru,
+Muiraquitã, Autômato, Olho da Torre e Pião. Quem já tinha armas antigas destravadas
+recebe o mesmo número no arsenal novo (migração automática do salvamento).
+
+**Raridade na própria arma:** comum de ferro fosco, incomum com bronze, rara de aço com
+runa, épica com brilho roxo, lendária dourada com aura e brilho na ponta. O elemento pinta
+o fio da lâmina. Projéteis têm a forma da arma (flecha, pedra, rede, pena, frasco...) e as
+armas de perto deixam rastro de golpe.
+
+**Nomes:** o adjetivo entra depois da primeira palavra ("Facão Teimoso de Mato"); com
+elemento, vira adjetivo de elemento ("Arco Gélido do Curupira"). Nada de "de... de... de".
+
+**Únicas (sempre lendárias, no máximo duas por jornada, do mundo 2 em diante):** Facão do
+Cangaceiro (derrubar acelera o próximo golpe), Arpão do Velho Chico (arremessado, puxa o
+inimigo), Marreta do Ferreiro Sem Rei (choque maior e raio que pula), Boleadeira dos Pampas
+(três de uma vez), Garrafada da Benzedeira (às vezes cura), O Autômato Que Disse Não
+(escolhe o alvo mais perigoso e não erra).
+
+Brasas e poças do mesmo tipo **não se somam** num inimigo (antes, dez brasas queimavam dez
+vezes).
 
 ## Inimigos e folclore
 
