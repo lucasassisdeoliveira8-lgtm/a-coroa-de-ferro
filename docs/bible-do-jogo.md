@@ -184,10 +184,34 @@ Resposta certa → **bênção permanente**. Resposta errada → **marca** que s
 
 | Pensador | Bênção | Marca |
 |---|---|---|
-| Sócrates | Dúvida Metódica (+60% no 1º golpe) | Certeza Precoce (some a barra de vida) |
+| Sócrates | Vida Examinada (+60% no 1º golpe) | Certeza Precoce (some a barra de vida) |
 | Aristóteles | Meio-Termo (40–70% de vida: +25% dano, −15% recebido) | Desmedida (+20% cadência, −precisão) |
 | Kant | Fim em Si (cura adianta a habilidade) | Cálculo Frio (+15% dano, cura trava em 60%) |
 | Bauman | Laço Firme (escudo ao limpar sala) | Vínculo Líquido (−40% moedas, mercador +30%) |
+
+### Revisão filosófica (novembro de 2026)
+
+Um professor de filosofia leu os encontros e apontou perguntas e respostas que não se
+sustentavam. A revisão seguiu três regras, que valem daqui em diante:
+
+1. **Nenhuma citação inventada.** As frases da travessia atribuídas a Sócrates,
+   Aristóteles, Kant e Bauman agora são todas reais e trazem a obra de onde vêm. Saíram,
+   entre outras, "a excelência não é um ato, é um hábito" (é de Will Durant, não de
+   Aristóteles) e "só sei que nada sei" (fórmula popular que não está em Platão).
+2. **A resposta certa tem que ser a do próprio pensador**, não uma leitura moderna posta
+   na boca dele. Por isso o encontro de Aristóteles sobre ferramentas virou o argumento da
+   função (Ética a Nicômaco I.7): o próprio Aristóteles imaginou ferramentas que
+   trabalhassem sozinhas, então "substituir quem usa" não era o erro dele.
+3. **A resposta "meio" tem que ser meio certa**, não só errada de outro jeito.
+
+Mudanças maiores: Kant 4 (a resposta certa era o próprio imperativo, um raciocínio
+circular; agora são três regras concretas e o teste em dois degraus), Aristóteles 3
+(argumento da função), Aristóteles 4 (a máquina pode ser amiga?), Bauman 1 (pergunta de
+entendimento, não de nome), Bauman 2 (a resposta errada não condena mais sair de relação
+que faz mal) e a terceira refutação final, que agora responde à frase da Coroa "não há
+maldade em mim: há aritmética". O bônus de Sócrates deixou de se chamar "Dúvida Metódica",
+expressão de Descartes, e virou "Vida Examinada" (Apologia 38a). O termo de Bauman em
+Modernidade e Holocausto é "responsabilidade flutuante", não "irresponsabilidade".
 
 ## Três finais
 
