@@ -5,7 +5,7 @@
    garante que ninguém fique preso numa versão velha do jogo.
    ================================================================== */
 
-const VERSAO = 'coroa-v14';
+const VERSAO = 'coroa-v15';
 const ESSENCIAIS = ['./', './index.html', './icone.png', './manifest.json'];
 
 self.addEventListener('install', evento => {

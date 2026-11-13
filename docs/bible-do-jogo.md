@@ -321,6 +321,16 @@ Cada mundo já tinha tema próprio; agora cada um tem percussão própria: Mata 
 relógio. Chefe da Mata e chefe do Cerrado ganharam temas próprios (a Coroa mantém o dela)
 e as salas de pensador e biblioteca, e os diálogos, tocam um tema lento só de pad e sino.
 
+## Desenho dos heróis (novembro de 2026)
+
+Os quatro heróis foram redesenhados com volume (luz de cima, sombra embaixo), braços e mãos
+(a mão da frente segura a arma no mesmo ponto de antes), rosto e três vistas de verdade:
+frente, lado e costas. Mesmo tamanho e mesma caixa de colisão. Duarte: elmo com viseira acesa,
+ombreiras, capa e a lanterna no cinto. Jandira: rosto no capuz, trança, capa com barra de folhas,
+aljava com penas vermelhas. Bento: óculos redondos, contas, cordão com borla e o livro na
+cintura. Ondina: máscara com lentes acesas e filtro, sobretudo de botões, cinto de frascos e
+mochila de tubos.
+
 ## Camada Unity (entregue antes)
 
 `Assets/Scripts/Camera/`: `CameraFollow2D.cs`, `CameraRoom2D.cs`, `CameraPortal2D.cs`,

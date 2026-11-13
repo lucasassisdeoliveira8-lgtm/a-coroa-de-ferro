@@ -4500,134 +4500,271 @@ const CORES_HEROI = {
 };
 
 /* est: {ang, passo, andando, ataque(0..1), dano, dash, morto, escala} */
+/* ==================================================================
+   HERÓIS — desenho com volume: luz de cima à esquerda, braços e mãos,
+   rosto, e três vistas de verdade (frente, lado, costas).
+   Mesma escala e mesmo pé no chão do desenho antigo: a caixa de
+   colisão e a posição da arma na mão não mudam.
+   ================================================================== */
 function desenharPersonagem(c, id, x, y, est){
   const C = CORES_HEROI[id], pele = PELE[id];
   const R = 33 * (est.escala||1);
   const vista = vistaDe(est.ang);
   const lado = Math.cos(est.ang) >= 0 ? 1 : -1;
-  const bal = est.andando ? Math.sin(est.passo*2)*R*.10 : Math.sin((est.passo||0)*.7)*R*.035;
-  const perna = est.andando ? Math.sin(est.passo*2)*R*.30 : 0;
+  const t = est.passo||0;
+  const bal = est.andando ? Math.sin(t*2)*R*.07 : Math.sin(t*.7)*R*.03;
+  const perna = est.andando ? Math.sin(t*2)*R*.24 : 0;
+  const balanco = est.andando ? Math.sin(t*2)*R*.10 : 0;
   const incl = est.dano ? .22*lado : est.dash ? .3*lado : 0;
+  const frente = vista==='frente', costas = vista==='costas', perfil = vista==='lado';
+  const LC = ARTE.contorno, LW = ARTE.linha*.92, LF = ARTE.linhaFina;
 
   c.save();
   c.translate(x,y);
   if (incl) c.rotate(incl);
   if (est.morto){ c.rotate(1.4); c.globalAlpha=.7; }
-  c.scale(vista==='lado' ? lado : 1, 1);
+  if (perfil) c.scale(lado,1);
   const rec = est.ataque ? -R*.12*est.ataque : 0;
 
-  // ---- pernas (comuns, mudam de cor)
-  const botas = C.couro;
-  peca(c, botas, p=>{ p.roundRect ? p.roundRect(-R*.42+perna, R*.30, R*.30, R*.52, 3) : p.rect(-R*.42+perna, R*.30, R*.30, R*.52); });
-  peca(c, botas, p=>{ p.roundRect ? p.roundRect(R*.10-perna, R*.30, R*.30, R*.52, 3) : p.rect(R*.10-perna, R*.30, R*.30, R*.52); });
+  /* peça com volume: luz em cima, sombra embaixo, contorno escuro */
+  function parte(cor, f, y0, y1, lw){
+    c.save(); c.fillStyle=cor; c.beginPath(); f(c); c.closePath(); c.fill(); c.clip();
+    const g=c.createLinearGradient(-R*.4,y0,R*.2,y1);
+    g.addColorStop(0,'rgba(255,240,210,.30)'); g.addColorStop(.42,'rgba(255,240,210,0)'); g.addColorStop(1,'rgba(0,0,0,.30)');
+    c.fillStyle=g; c.fillRect(-R*2,y0-R,R*4,y1-y0+R*2);
+    c.restore();
+    c.strokeStyle=LC; c.lineWidth=lw||LW; c.beginPath(); f(c); c.closePath(); c.stroke();
+  }
+  function linha(cor, w, f){ c.strokeStyle=cor; c.lineWidth=w; c.lineCap='round'; c.beginPath(); f(c); c.stroke(); c.lineCap='butt'; }
+  function bola(cor, x0, y0, r, lw){ parte(cor, p=>p.arc(x0,y0,r,0,TAU), y0-r, y0+r, lw||LF); }
+  function brilhoPonto(x0,y0,r,cor){ c.fillStyle=cor||'rgba(255,255,255,.75)'; c.beginPath(); c.arc(x0,y0,r,0,TAU); c.fill(); }
+
+  /* ---- pernas e botas ---- */
+  function pernas(cor, curta){
+    const ys = R*.30;
+    const pos = perfil ? [[-R*.08-perna*.9,0],[R*.08+perna*.9,1]] : [[-R*.19+perna*.15,0],[R*.19-perna*.15,1]];
+    for (const [dx,i] of pos){
+      const sobe = est.andando ? Math.max(0, Math.sin(t*2)*(i?1:-1))*R*.05 : 0;
+      const h = curta ? R*.34 : R*.50;
+      parte(cor, p=>p.roundRect(dx-R*.14, ys+(curta?R*.16:0)-sobe, R*.28, h, R*.07), ys-sobe, ys+R*.5);
+      c.fillStyle='rgba(0,0,0,.35)'; c.fillRect(dx-R*.14, ys+R*.44-sobe, R*.28, R*.05);
+    }
+  }
+  /* ---- braço: manga do ombro até a mão ---- */
+  function braco(mangaCor, maoCor, ox, oy, hx, hy, larg){
+    const w=larg||R*.24;
+    c.save(); c.lineCap='round';
+    c.strokeStyle=LC; c.lineWidth=w+LW*2; c.beginPath(); c.moveTo(ox,oy); c.lineTo(hx,hy); c.stroke();
+    c.strokeStyle=mangaCor; c.lineWidth=w; c.beginPath(); c.moveTo(ox,oy); c.lineTo(hx,hy); c.stroke();
+    c.strokeStyle='rgba(255,240,210,.22)'; c.lineWidth=w*.35; c.beginPath(); c.moveTo(ox-w*.18,oy-w*.12); c.lineTo(hx-w*.18,hy-w*.12); c.stroke();
+    c.restore();
+    bola(maoCor, hx, hy, R*.12);
+  }
+  /* mão da frente segue a arma (a arma é desenhada logo à frente do corpo) */
+  const maoF = perfil ? [R*.40, -R*.10+bal] : frente ? [R*.46, R*.12+bal] : [R*.50, R*.06+bal];
+  const maoT = perfil ? [-R*.30-balanco, R*.08+bal] : [-R*.50, R*.10+bal+balanco*.3];
 
   if (id==='cavaleiro'){
-    // capa curta atrás
-    peca(c, C.capa, p=>{ p.moveTo(-R*.62, -R*.30); p.lineTo(R*.62,-R*.30); p.lineTo(R*.42, R*.55); p.lineTo(-R*.42, R*.55); });
-    // torso: ombreiras largas
-    peca(c, C.corpo, p=>{
-      p.moveTo(-R*.78, -R*.26+bal); p.lineTo(-R*.50, -R*.42+bal);
-      p.lineTo(R*.50, -R*.42+bal);  p.lineTo(R*.78, -R*.26+bal);
-      p.lineTo(R*.52, R*.40+bal);   p.lineTo(-R*.52, R*.40+bal);
-    });
-    // peitoral
-    c.fillStyle=C.metal; c.globalAlpha=.5;
-    c.fillRect(-R*.34, -R*.22+bal, R*.68, R*.30); c.globalAlpha=1;
-    c.fillStyle=ARTE.luzTopo; c.fillRect(-R*.50,-R*.42+bal,R*1.0,R*.10);
-    // elmo com visor
-    peca(c, C.metal, p=>{ p.ellipse(0, -R*.72+bal, R*.44, R*.46, 0, 0, TAU); });
-    c.fillStyle='#171310'; c.fillRect(-R*.34, -R*.80+bal, R*.68, R*.13);
-    c.fillStyle='#7FE0E8'; c.fillRect(-R*.28, -R*.78+bal, R*.16, R*.08);
-    c.fillRect(R*.12, -R*.78+bal, R*.16, R*.08);
-    // penacho / crista
-    peca(c, C.capa, p=>{ p.moveTo(-R*.06,-R*1.14+bal); p.lineTo(R*.10,-R*1.14+bal); p.lineTo(R*.04,-R*.82+bal); p.lineTo(-R*.10,-R*.82+bal); });
-  }
-  else if (id==='arqueira'){
-    // aljava nas costas
-    peca(c, C.couro, p=>{ p.roundRect ? p.roundRect(-R*.86,-R*.52+bal,R*.30,R*.72,4) : p.rect(-R*.86,-R*.52+bal,R*.30,R*.72); });
-    for(let k=0;k<3;k++){
-      c.strokeStyle='#D8CDB6'; c.lineWidth=2;
-      c.beginPath(); c.moveTo(-R*.78+k*R*.09,-R*.52+bal); c.lineTo(-R*.86+k*R*.09,-R*.92+bal); c.stroke();
-      c.fillStyle=C.metal; c.beginPath();
-      c.arc(-R*.86+k*R*.09,-R*.94+bal,R*.06,0,TAU); c.fill();
+    const capa = p=>{ const f=Math.sin(t*2)*R*.06*(est.andando?1:.3);
+      if (perfil){ p.moveTo(-R*.10,-R*.40+bal); p.lineTo(-R*.62-f,R*.62); p.quadraticCurveTo(-R*.30,R*.70,-R*.02,R*.50); p.lineTo(R*.20,-R*.36+bal); }
+      else { p.moveTo(-R*.58,-R*.34+bal); p.lineTo(R*.58,-R*.34+bal); p.lineTo(R*.66+f,R*.66); p.quadraticCurveTo(0,R*.78,-R*.66-f,R*.66); } };
+    if (!costas) parte(C.capa, capa, -R*.4, R*.7);
+    if (perfil) braco(C.corpo, C.metal, -R*.10, -R*.24+bal, maoT[0], maoT[1]);
+    pernas(C.couro);
+    // torso de armadura
+    parte(C.corpo, p=>{ p.moveTo(-R*.50,-R*.40+bal); p.lineTo(R*.50,-R*.40+bal); p.lineTo(R*.46,R*.36+bal); p.quadraticCurveTo(0,R*.44+bal,-R*.46,R*.36+bal); }, -R*.4, R*.4);
+    if (!costas){
+      // peitoral com quina no meio
+      parte(C.metal, p=>{ p.moveTo(-R*.34,-R*.30+bal); p.lineTo(R*.34,-R*.30+bal); p.lineTo(R*.28,R*.06+bal); p.lineTo(0,R*.16+bal); p.lineTo(-R*.28,R*.06+bal); }, -R*.3, R*.16, LF);
+      linha('rgba(0,0,0,.35)', 1.2, p=>{ p.moveTo(0,-R*.28+bal); p.lineTo(0,R*.14+bal); });
+      // a lanterna que não apaga, presa ao cinto
+      const lx = perfil ? R*.02 : -R*.30, ly = R*.30+bal+Math.sin(t*2)*R*.03;
+      brilho(lx, ly, R*.75, 'rgba(235,200,126,.55)', .75, c);
+      parte('#5E564C', p=>p.rect(lx-R*.09, ly-R*.11, R*.18, R*.22), ly-R*.11, ly+R*.11, LF);
+      c.fillStyle='#FFE6A8'; c.fillRect(lx-R*.05, ly-R*.07, R*.10, R*.14);
+      linha('#5E564C', 1.4, p=>{ p.moveTo(lx,ly-R*.11); p.lineTo(lx,ly-R*.18); });
     }
-    // corpo esguio
-    peca(c, C.corpo, p=>{
-      p.moveTo(-R*.48,-R*.34+bal); p.lineTo(R*.48,-R*.34+bal);
-      p.lineTo(R*.40, R*.38+bal); p.lineTo(-R*.40, R*.38+bal);
-    });
-    // capa/manto verde por cima
-    peca(c, C.capa, p=>{
-      p.moveTo(-R*.62,-R*.40+bal); p.lineTo(R*.62,-R*.40+bal);
-      p.lineTo(R*.30, R*.14+bal); p.lineTo(-R*.30, R*.14+bal);
-    });
     // cinto
-    c.fillStyle=C.couro; c.fillRect(-R*.44, R*.10+bal, R*.88, R*.14);
-    // capuz pontudo
-    peca(c, C.capa, p=>{
-      p.moveTo(-R*.50,-R*.52+bal); p.quadraticCurveTo(0,-R*1.34+bal, R*.50,-R*.52+bal);
-      p.lineTo(R*.34,-R*.40+bal); p.lineTo(-R*.34,-R*.40+bal);
-    });
-    // rosto na sombra
-    c.fillStyle='#100D0A'; c.beginPath(); c.ellipse(R*.06,-R*.66+bal,R*.28,R*.24,0,0,TAU); c.fill();
-    c.fillStyle=pele; c.beginPath(); c.ellipse(R*.12,-R*.62+bal,R*.18,R*.16,0,0,TAU); c.fill();
-    c.fillStyle='#F0E6D0'; c.fillRect(R*.06,-R*.68+bal,R*.10,R*.05);
+    parte(C.couro, p=>p.rect(-R*.48, R*.16+bal, R*.96, R*.11), R*.16, R*.27, LF);
+    parte(C.acento, p=>p.rect(-R*.06, R*.16+bal, R*.12, R*.11), R*.16, R*.27, 1.2);
+    // ombreiras
+    for (const s of (perfil?[1]:[-1,1])){
+      const ox = perfil ? -R*.02 : s*R*.48;
+      parte(C.metal, p=>{ p.ellipse(ox,-R*.36+bal,R*.24,R*.16,0,Math.PI,0); p.lineTo(ox+R*.24,-R*.30+bal); p.lineTo(ox-R*.24,-R*.30+bal); }, -R*.52, -R*.3, LF);
+      for (const k of [-.1,.08]) { c.fillStyle='rgba(0,0,0,.3)'; c.fillRect(ox-R*.2, -R*.33+bal+k*R*.3, R*.4, 1.2); }
+    }
+    if (costas) parte(C.capa, capa, -R*.4, R*.7);
+    // braço da frente
+    if (!costas) braco(C.corpo, C.metal, perfil?R*.06:R*.44, -R*.24+bal, maoF[0], maoF[1]);
+    if (frente) braco(C.corpo, C.metal, -R*.44, -R*.24+bal, maoT[0], maoT[1]);
+    if (costas){ braco(C.corpo, C.metal, -R*.46, -R*.2+bal, -R*.52, R*.12+bal); braco(C.corpo, C.metal, R*.46, -R*.2+bal, R*.52, R*.12+bal); }
+    // elmo
+    const hy = -R*.74+bal;
+    parte(C.metal, p=>{ p.moveTo(-R*.38,hy+R*.20); p.lineTo(-R*.40,hy-R*.08); p.quadraticCurveTo(-R*.36,hy-R*.46,0,hy-R*.48); p.quadraticCurveTo(R*.36,hy-R*.46,R*.40,hy-R*.08); p.lineTo(R*.38,hy+R*.20); p.quadraticCurveTo(0,hy+R*.32,-R*.38,hy+R*.20); }, hy-R*.48, hy+R*.3);
+    if (!costas){
+      const vx0 = perfil ? R*.02 : -R*.32, vx1 = perfil ? R*.42 : R*.32;
+      c.fillStyle='#120F0C'; c.fillRect(vx0, hy-R*.06, vx1-vx0, R*.11);
+      c.save(); c.shadowColor='#7FE0E8'; c.shadowBlur=6; c.fillStyle='#9FEAF0';
+      if (perfil) c.fillRect(R*.18, hy-R*.04, R*.18, R*.06);
+      else { c.fillRect(-R*.26, hy-R*.04, R*.17, R*.06); c.fillRect(R*.09, hy-R*.04, R*.17, R*.06); }
+      c.restore();
+      if (frente) parte(C.metal, p=>p.rect(-R*.035, hy-R*.07, R*.07, R*.26), hy, hy+R*.2, 1.1);
+      for (let k=0;k<3;k++){ c.fillStyle='rgba(0,0,0,.4)'; c.fillRect((perfil?R*.2:-R*.12)+k*R*.09, hy+R*.12, R*.03, R*.08); }
+    }
+    brilhoPonto(-R*.18, hy-R*.30, R*.07, 'rgba(255,255,255,.55)');
+    // penacho que cai para trás
+    const pz = perfil ? -1 : 0;
+    parte(C.capa, p=>{ p.moveTo(-R*.05,hy-R*.46); p.quadraticCurveTo(R*.10+pz*R*.2,hy-R*.80,(perfil?-R*.44:R*.04),hy-R*.70); p.quadraticCurveTo(perfil?-R*.30:R*.14,hy-R*.56,R*.07,hy-R*.44); }, hy-R*.8, hy-R*.44, LF);
   }
+
+  else if (id==='arqueira'){
+    const aljava = ()=>{
+      const qx = costas ? R*.10 : perfil ? -R*.46 : R*.36, qy = -R*.18+bal;
+      c.save(); c.translate(qx,qy); c.rotate(costas?.32:perfil?-.25:.35);
+      parte(C.couro, p=>p.roundRect(-R*.13,-R*.40,R*.26,R*.74,R*.06), -R*.4, R*.34, LF);
+      linha('rgba(255,240,210,.3)',1,p=>{ p.moveTo(-R*.13,-R*.2); p.lineTo(R*.13,-R*.2); p.moveTo(-R*.13,R*.12); p.lineTo(R*.13,R*.12); });
+      for (let k=0;k<3;k++){ const ax=-R*.07+k*R*.07;
+        linha('#D8CDB6',1.6,p=>{ p.moveTo(ax,-R*.40); p.lineTo(ax,-R*.62); });
+        parte(['#C0553F','#E2763A','#C0553F'][k], p=>{ p.moveTo(ax,-R*.56); p.lineTo(ax-R*.05,-R*.70); p.lineTo(ax+R*.05,-R*.70); }, -R*.7, -R*.56, 1); }
+      c.restore(); };
+    if (!costas) aljava();
+    if (perfil) braco(C.corpo, pele, -R*.06, -R*.24+bal, maoT[0], maoT[1], R*.2);
+    pernas(C.couro);
+    // túnica
+    parte(C.corpo, p=>{ p.moveTo(-R*.38,-R*.36+bal); p.lineTo(R*.38,-R*.36+bal); p.lineTo(R*.44,R*.40+bal); p.lineTo(-R*.44,R*.40+bal); }, -R*.36, R*.4);
+    linha('rgba(0,0,0,.25)',1.1,p=>{ p.moveTo(-R*.14,R*.22+bal); p.lineTo(-R*.18,R*.38+bal); p.moveTo(R*.16,R*.22+bal); p.lineTo(R*.2,R*.38+bal); });
+    // cinto com fivela
+    parte(C.couro, p=>p.rect(-R*.42, R*.10+bal, R*.84, R*.11), R*.1, R*.21, LF);
+    parte(C.acento, p=>p.rect(-R*.07, R*.09+bal, R*.14, R*.13), R*.09, R*.22, 1.1);
+    // capa curta nos ombros, com barra de folhas
+    parte(C.capa, p=>{ p.moveTo(-R*.52,-R*.40+bal); p.lineTo(R*.52,-R*.40+bal); p.lineTo(R*.46,-R*.02+bal);
+      for (let k=4;k>=-4;k--) p.lineTo(k*R*.11, (k%2?-R*.02:R*.05)+bal); p.lineTo(-R*.46,-R*.02+bal); }, -R*.4, R*.05);
+    if (costas) aljava();
+    if (!costas){ braco(C.corpo, pele, perfil?R*.04:R*.40, -R*.26+bal, maoF[0], maoF[1], R*.2);
+      parte(C.couro, p=>p.rect(maoF[0]-R*.12-(perfil?R*.08:0), maoF[1]-R*.16, R*.16, R*.12), 0, 1, 1); }
+    if (frente) braco(C.corpo, pele, -R*.40, -R*.26+bal, maoT[0], maoT[1], R*.2);
+    if (costas){ braco(C.corpo, pele, -R*.40, -R*.22+bal, -R*.48, R*.10+bal, R*.2); braco(C.corpo, pele, R*.40, -R*.22+bal, R*.48, R*.10+bal, R*.2); }
+    // cabeça e capuz
+    const hy=-R*.70+bal;
+    if (costas){
+      parte(C.capa, p=>{ p.moveTo(-R*.40,hy+R*.22); p.quadraticCurveTo(-R*.46,hy-R*.40,0,hy-R*.56); p.quadraticCurveTo(R*.46,hy-R*.40,R*.40,hy+R*.22); p.quadraticCurveTo(0,hy+R*.34,-R*.40,hy+R*.22); }, hy-R*.56, hy+R*.3);
+      // trança caindo nas costas
+      for (let k=0;k<4;k++) bola('#2A1A10', R*.02, hy+R*.18+k*R*.12, R*.075-k*R*.008, 1);
+    } else {
+      parte(C.capa, p=>{ p.moveTo(-R*.42,hy+R*.24); p.quadraticCurveTo(-R*.48,hy-R*.40,(perfil?-R*.10:0),hy-R*.60); p.quadraticCurveTo(R*.44,hy-R*.42,R*.44,hy+R*.20); p.lineTo(-R*.42,hy+R*.24); }, hy-R*.6, hy+R*.24);
+      // abertura do capuz com o rosto
+      c.fillStyle='#14100B'; c.beginPath(); c.ellipse(perfil?R*.14:0, hy+R*.02, R*.29, R*.27, 0,0,TAU); c.fill();
+      parte(pele, p=>p.ellipse(perfil?R*.18:0, hy+R*.05, R*.24, R*.25, 0,0,TAU), hy-R*.2, hy+R*.3, LF);
+      // franja escura
+      parte('#2A1A10', p=>{ p.moveTo((perfil?-R*.04:-R*.22),hy-R*.10); p.quadraticCurveTo(perfil?R*.18:0,hy-R*.26,(perfil?R*.38:R*.22),hy-R*.08); p.lineTo(perfil?R*.30:R*.12,hy-R*.04); p.lineTo(perfil?R*.04:-R*.12,hy-R*.04); }, hy-R*.26, hy, 1);
+      c.fillStyle='#1A120C';
+      if (perfil) c.fillRect(R*.28, hy+R*.02, R*.05, R*.06);
+      else { c.fillRect(-R*.12, hy+R*.02, R*.06, R*.06); c.fillRect(R*.06, hy+R*.02, R*.06, R*.06); }
+      c.fillStyle='rgba(192,85,63,.35)'; if (!perfil){ c.fillRect(-R*.16,hy+R*.12,R*.07,R*.03); c.fillRect(R*.09,hy+R*.12,R*.07,R*.03); }
+      if (frente) for (let k=0;k<3;k++) bola('#2A1A10', -R*.30, hy+R*.30+k*R*.11, R*.065-k*R*.008, 1);
+    }
+  }
+
   else if (id==='monge'){
-    // veste larga: silhueta triangular
-    peca(c, C.capa, p=>{
-      p.moveTo(-R*.40,-R*.42+bal); p.lineTo(R*.40,-R*.42+bal);
-      p.lineTo(R*.92, R*.72); p.lineTo(-R*.92, R*.72);
-    });
-    // faixa
-    c.fillStyle=C.metal; c.globalAlpha=.7;
-    c.fillRect(-R*.56, R*.06+bal, R*1.12, R*.16); c.globalAlpha=1;
-    c.strokeStyle=ARTE.contorno; c.lineWidth=ARTE.linhaFina;
-    c.strokeRect(-R*.56, R*.06+bal, R*1.12, R*.16);
-    // estola sobre o ombro
-    peca(c, C.corpo, p=>{ p.moveTo(-R*.42,-R*.40+bal); p.lineTo(R*.10,-R*.40+bal); p.lineTo(R*.02,R*.30); p.lineTo(-R*.34,R*.30); });
-    // cabeça raspada
-    peca(c, pele, p=>{ p.ellipse(0,-R*.68+bal, R*.38, R*.42, 0,0,TAU); });
-    c.fillStyle=ARTE.luzTopo; c.beginPath(); c.ellipse(-R*.10,-R*.84+bal,R*.16,R*.10,0,0,TAU); c.fill();
-    if (vista!=='costas'){
-      c.fillStyle='#2A2118';
-      c.fillRect(-R*.22,-R*.72+bal,R*.14,R*.05); c.fillRect(R*.08,-R*.72+bal,R*.14,R*.05);
+    // pés de sandália aparecendo embaixo da veste
+    for (const s of [-1,1]){ const dx = perfil ? s*perna*.8 : s*R*.22+s*perna*.1;
+      parte(pele, p=>p.ellipse(dx, R*.76, R*.15, R*.07, 0,0,TAU), R*.7, R*.83, 1);
+      linha(C.couro, 1.6, p=>{ p.moveTo(dx-R*.12,R*.74); p.lineTo(dx+R*.12,R*.74); }); }
+    if (perfil) braco(C.capa, pele, -R*.08, -R*.24+bal, maoT[0], maoT[1], R*.30);
+    // veste larga em sino, com dobras
+    parte(C.capa, p=>{ p.moveTo(-R*.40,-R*.42+bal); p.lineTo(R*.40,-R*.42+bal); p.quadraticCurveTo(R*.70,R*.20,R*.80,R*.72); p.quadraticCurveTo(0,R*.80,-R*.80,R*.72); p.quadraticCurveTo(-R*.70,R*.20,-R*.40,-R*.42+bal); }, -R*.42, R*.78);
+    linha('rgba(0,0,0,.22)',1.3,p=>{ for (const k of [-.42,-.14,.16,.44]){ p.moveTo(k*R,R*.30+bal); p.quadraticCurveTo(k*R*1.2,R*.52,k*R*1.35,R*.74); } });
+    // estola sobre os ombros
+    if (!costas) parte(C.corpo, p=>{ p.moveTo(-R*.36,-R*.42+bal); p.lineTo(-R*.10,-R*.42+bal); p.lineTo(-R*.12,R*.60); p.lineTo(-R*.30,R*.60); }, -R*.42, R*.6, LF);
+    // cordão com borla
+    parte(C.metal, p=>p.rect(-R*.54, R*.08+bal, R*1.08, R*.09), R*.08, R*.17, LF);
+    linha(C.metal, 2.2, p=>{ p.moveTo(R*.22,R*.16+bal); p.quadraticCurveTo(R*.30,R*.34,R*.24,R*.48); });
+    parte(C.acento, p=>{ p.moveTo(R*.20,R*.46); p.lineTo(R*.30,R*.46); p.lineTo(R*.33,R*.58); p.lineTo(R*.17,R*.58); }, R*.46, R*.58, 1);
+    // o livro que ele copiou, preso ao cordão
+    if (!costas){ const bx = perfil ? -R*.02 : -R*.40;
+      parte('#5A3A24', p=>p.rect(bx-R*.13, R*.16+bal, R*.26, R*.30), R*.16, R*.46, LF);
+      c.fillStyle='#E4D9B6'; c.fillRect(bx+R*.10, R*.19+bal, R*.03, R*.24);
+      parte(C.acento, p=>p.rect(bx-R*.13, R*.16+bal, R*.07, R*.07), 0, 1, .8);
+      parte(C.acento, p=>p.rect(bx-R*.13, R*.39+bal, R*.07, R*.07), 0, 1, .8); }
+    // mangas largas
+    if (!costas) braco(C.capa, pele, perfil?R*.04:R*.40, -R*.26+bal, maoF[0], maoF[1], R*.30);
+    if (frente) braco(C.capa, pele, -R*.40, -R*.26+bal, maoT[0], maoT[1], R*.30);
+    if (costas){ braco(C.capa, pele, -R*.42, -R*.22+bal, -R*.52, R*.12+bal, R*.30); braco(C.capa, pele, R*.42, -R*.22+bal, R*.52, R*.12+bal, R*.30); }
+    // contas de oração
+    if (!costas) for (let k=0;k<9;k++){ const a=.35+k*.30; bola(C.metal, Math.cos(a)*R*.30, -R*.40+bal+Math.sin(a)*R*.22, R*.045, .8); }
+    // cabeça raspada, orelhas, óculos redondos
+    const hy=-R*.70+bal;
+    if (!costas) for (const s of (perfil?[-1]:[-1,1])) parte(pele, p=>p.ellipse(s*R*.36, hy+R*.04, R*.08, R*.12, 0,0,TAU), hy-R*.1, hy+R*.16, 1);
+    parte(pele, p=>p.ellipse(perfil?R*.04:0, hy, R*.36, R*.40, 0,0,TAU), hy-R*.4, hy+R*.4);
+    brilhoPonto(-R*.12, hy-R*.20, R*.09, 'rgba(255,248,230,.55)');
+    if (costas){ for (const s of [-1,1]) parte(pele, p=>p.ellipse(s*R*.36, hy+R*.04, R*.08, R*.12, 0,0,TAU), hy-R*.1, hy+R*.16, 1);
+      linha('rgba(0,0,0,.16)',1.1,p=>{ p.moveTo(-R*.10,hy+R*.36); p.lineTo(R*.10,hy+R*.36); }); }
+    else {
+      const olhos = perfil ? [R*.24] : [-R*.14, R*.14];
+      for (const ox of olhos){
+        c.fillStyle='rgba(235,200,126,.25)'; c.beginPath(); c.arc(ox, hy+R*.02, R*.10, 0, TAU); c.fill();
+        c.strokeStyle='#8A6A2E'; c.lineWidth=1.6; c.beginPath(); c.arc(ox, hy+R*.02, R*.10, 0, TAU); c.stroke();
+        c.fillStyle='#2A2118'; c.fillRect(ox-R*.04, hy+R*.01, R*.08, R*.035);
+        linha('rgba(60,40,20,.7)',1.4,p=>{ p.moveTo(ox-R*.08,hy-R*.12); p.lineTo(ox+R*.07,hy-R*.13); }); }
+      if (!perfil) linha('#8A6A2E',1.4,p=>{ p.moveTo(-R*.04,hy+R*.02); p.lineTo(R*.04,hy+R*.02); });
+      else { parte(pele, p=>{ p.moveTo(R*.36,hy); p.lineTo(R*.46,hy+R*.10); p.lineTo(R*.36,hy+R*.12); }, hy, hy+R*.12, 1); }
+      linha('rgba(90,50,30,.6)',1.3,p=>{ p.moveTo((perfil?R*.18:-R*.08),hy+R*.22); p.quadraticCurveTo(perfil?R*.26:0,hy+R*.26,(perfil?R*.32:R*.08),hy+R*.22); });
     }
-    // contas
-    c.fillStyle=C.metal;
-    for(let k=0;k<7;k++){ const a=-2.0+k*.5;
-      c.beginPath(); c.arc(Math.cos(a)*R*.44, -R*.30+bal+Math.sin(a)*R*.30, R*.075, 0, TAU); c.fill(); }
   }
+
   else {
-    // alquimista: mochila com tubos
-    peca(c, '#2A2730', p=>{ p.roundRect ? p.roundRect(-R*.86,-R*.46+bal,R*.34,R*.78,4) : p.rect(-R*.86,-R*.46+bal,R*.34,R*.78); });
-    for(let k=0;k<2;k++){
-      c.fillStyle = k? '#E2763A':'#4FD6E0';
-      c.beginPath(); c.arc(-R*.70,-R*.34+bal+k*R*.28, R*.11, 0, TAU); c.fill();
-      c.strokeStyle=ARTE.contorno; c.lineWidth=ARTE.linhaFina; c.stroke();
+    // alquimista: mochila de tubos
+    const mochila = ()=>{
+      const bx = costas ? 0 : perfil ? -R*.46 : 0, by=-R*.10+bal;
+      if (!costas && !perfil){ // de frente só aparecem as pontas dos tubos acima dos ombros
+        for (const [s,cl] of [[-1,'#4FD6E0'],[1,'#E2763A']]){ parte('rgba(210,235,240,.35)', p=>p.roundRect(s*R*.42-R*.07,-R*.86+bal,R*.14,R*.36,R*.05), -R*.86, -R*.5, LF);
+          c.fillStyle=cl; c.fillRect(s*R*.42-R*.05,-R*.70+bal,R*.10,R*.18); parte('#5E564C',p=>p.rect(s*R*.42-R*.08,-R*.90+bal,R*.16,R*.06),0,1,1); }
+        return; }
+      parte('#2A2730', p=>p.roundRect(bx-R*.34,by-R*.40,R*.68,R*.80,R*.10), by-R*.4, by+R*.4);
+      for (const [k,cl] of [[-1,'#4FD6E0'],[1,'#E2763A']]){ const tx=bx+k*R*.17;
+        parte('rgba(210,235,240,.35)', p=>p.roundRect(tx-R*.10,by-R*.56,R*.20,R*.62,R*.07), by-R*.56, by+R*.06, LF);
+        c.save(); c.shadowColor=cl; c.shadowBlur=6; c.fillStyle=cl; c.fillRect(tx-R*.07, by-R*.28, R*.14, R*.30); c.restore();
+        brilhoPonto(tx-R*.04, by-R*.44, R*.03);
+        parte('#5E564C', p=>p.rect(tx-R*.11,by-R*.60,R*.22,R*.08),0,1,1); }
+      linha('#3E3A44',3,p=>{ p.moveTo(bx-R*.30,by+R*.28); p.lineTo(bx+R*.30,by+R*.28); }); };
+    if (!costas) mochila();
+    if (perfil) braco(C.capa, '#2A2730', -R*.08, -R*.24+bal, maoT[0], maoT[1], R*.24);
+    pernas('#2A2730');
+    // sobretudo comprido
+    parte(C.capa, p=>{ p.moveTo(-R*.46,-R*.40+bal); p.lineTo(R*.46,-R*.40+bal); p.lineTo(R*.58,R*.62); p.lineTo(R*.10,R*.66); p.lineTo(0,R*.40); p.lineTo(-R*.10,R*.66); p.lineTo(-R*.58,R*.62); }, -R*.4, R*.66);
+    if (!costas){
+      // lapelas e botões
+      parte(C.corpo, p=>{ p.moveTo(-R*.20,-R*.40+bal); p.lineTo(R*.20,-R*.40+bal); p.lineTo(R*.06,R*.10+bal); p.lineTo(-R*.06,R*.10+bal); }, -R*.4, R*.1, LF);
+      for (let k=0;k<3;k++) bola(C.metal, R*.14, -R*.22+bal+k*R*.14, R*.035, .8);
+      // cinto de frascos
+      parte(C.couro, p=>p.rect(-R*.52, R*.12+bal, R*1.04, R*.11), R*.12, R*.23, LF);
+      ['#4FD6E0','#E2763A','#8A9A5B'].forEach((cl,k)=>{ const fx=-R*.34+k*R*.34;
+        parte('rgba(210,235,240,.4)', p=>p.roundRect(fx-R*.06,R*.16+bal,R*.12,R*.18,R*.04), R*.16, R*.34, 1);
+        c.fillStyle=cl; c.fillRect(fx-R*.04, R*.24+bal, R*.08, R*.09);
+        parte('#8A6A44', p=>p.rect(fx-R*.04,R*.12+bal,R*.08,R*.05),0,1,.8); });
     }
-    // sobretudo
-    peca(c, C.capa, p=>{
-      p.moveTo(-R*.60,-R*.38+bal); p.lineTo(R*.60,-R*.38+bal);
-      p.lineTo(R*.66, R*.62); p.lineTo(-R*.66, R*.62);
-    });
-    peca(c, C.corpo, p=>{ p.moveTo(-R*.22,-R*.38+bal); p.lineTo(R*.22,-R*.38+bal); p.lineTo(R*.16,R*.30); p.lineTo(-R*.16,R*.30); });
-    // cinto de frascos
-    c.fillStyle=C.couro; c.fillRect(-R*.56, R*.08+bal, R*1.12, R*.14);
-    for(let k=0;k<3;k++){
-      c.fillStyle=['#4FD6E0','#E2763A','#8A9A5B'][k];
-      c.beginPath(); c.arc(-R*.36+k*R*.36, R*.24+bal, R*.10, 0, TAU); c.fill();
-      c.strokeStyle=ARTE.contorno; c.lineWidth=ARTE.linhaFina; c.stroke();
+    if (costas) mochila();
+    if (!costas) braco(C.capa, '#2A2730', perfil?R*.04:R*.42, -R*.26+bal, maoF[0], maoF[1], R*.24);
+    if (frente) braco(C.capa, '#2A2730', -R*.42, -R*.26+bal, maoT[0], maoT[1], R*.24);
+    if (costas){ braco(C.capa, '#2A2730', -R*.44, -R*.22+bal, -R*.52, R*.12+bal, R*.24); braco(C.capa, '#2A2730', R*.44, -R*.22+bal, R*.52, R*.12+bal, R*.24); }
+    // capuz e máscara de gás
+    const hy=-R*.70+bal;
+    parte('#26232B', p=>p.ellipse(0, hy, R*.44, R*.46, 0,0,TAU), hy-R*.46, hy+R*.46);
+    if (costas){ linha('#3E3A44',2.4,p=>{ p.moveTo(-R*.42,hy+R*.04); p.lineTo(R*.42,hy+R*.04); }); }
+    else {
+      const mx = perfil ? R*.16 : 0;
+      parte('#3E3A44', p=>p.ellipse(mx, hy+R*.06, R*.32, R*.28, 0,0,TAU), hy-R*.22, hy+R*.34, LF);
+      const lentes = perfil ? [R*.30] : [-R*.13, R*.13];
+      for (const lx of lentes){
+        parte(C.metal, p=>p.arc(lx, hy-R*.02, R*.12, 0, TAU), hy-R*.14, hy+R*.1, 1.4);
+        c.save(); c.shadowColor='#4FD6E0'; c.shadowBlur=8; c.fillStyle='#BFF4F8'; c.beginPath(); c.arc(lx, hy-R*.02, R*.07, 0, TAU); c.fill(); c.restore();
+        brilhoPonto(lx-R*.03, hy-R*.05, R*.025); }
+      // filtro
+      const fx = perfil ? R*.40 : 0, fy = hy+R*.24;
+      parte('#1E1B22', p=>p.roundRect(fx-R*.12, fy-R*.06, R*.24, R*.18, R*.05), fy-R*.06, fy+R*.12, LF);
+      for (let k=0;k<3;k++){ c.fillStyle='rgba(255,255,255,.18)'; c.fillRect(fx-R*.08, fy-R*.02+k*R*.045, R*.16, 1); }
     }
-    // capuz + máscara de gás
-    peca(c, '#26232B', p=>{ p.ellipse(0,-R*.70+bal, R*.46, R*.46, 0,0,TAU); });
-    peca(c, '#3E3A44', p=>{ p.ellipse(R*.04,-R*.60+bal, R*.34, R*.30, 0,0,TAU); });
-    c.fillStyle=C.metal;
-    c.beginPath(); c.arc(-R*.12,-R*.68+bal,R*.13,0,TAU); c.arc(R*.20,-R*.68+bal,R*.13,0,TAU); c.fill();
-    c.strokeStyle=ARTE.contorno; c.lineWidth=ARTE.linhaFina; c.stroke();
-    c.fillStyle='#1A1720';
-    c.beginPath(); c.arc(R*.06,-R*.44+bal,R*.14,0,TAU); c.fill();
-    brilho(R*.04*0, -R*.68+bal, R*.9, 'rgba(79,214,224,.35)', .55, c);
+    brilho(perfil?R*.3:0, hy, R*.8, 'rgba(79,214,224,.30)', .5, c);
   }
   c.restore();
   return {R, rec};
