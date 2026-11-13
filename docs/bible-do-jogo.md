@@ -287,6 +287,40 @@ nada. O pensador seguinte abre a conversa lembrando da sua última resposta.
 
 O jogo guarda quais finais você já viu ("3 de 6 finais encontrados").
 
+## Desafio do dia
+
+Botão no menu. A masmorra é a mesma para todo mundo no mesmo dia (data de Brasília): cada
+fase e cada sala nascem de uma semente feita da data e do lugar (`semear()`), então salas,
+inimigos e pensadores batem entre jogadores mesmo que o combate de cada um seja diferente.
+Herói do dia fixo, Ordem I e só armas iniciais. Pontos = (fase alcançada × 100) + salas
+limpas × 10 + sabedoria × 30 + final (vitória 1000, aceitar 400). O jogo guarda o melhor de
+cada dia e as tentativas (últimos 30 dias). A comparação é pelo botão Compartilhar — não
+existe placar online (o jogo não tem servidor).
+
+## Conquistas
+
+19 conquistas guardadas no aparelho, com aviso na hora (canto de cima) e tela própria no
+menu: sair da Mata, fase sem dano, chefe sem dano, jornada sem dano, acertar todas as
+perguntas de cada pensador numa jornada (quatro), refutar três Sofistas, derrubar o
+Desmedido sem passar de meia fúria, derrubar o Calculista libertando dois sem matar
+acorrentado, ganhar o aliado, pegar arma única, usar as 19 armas, final verdadeiro, final da
+Mosca, os seis finais, Ordem II e jogar um desafio do dia até o fim.
+
+## Compartilhar
+
+Todo fim de jornada (morte e finais) ganha o botão **Compartilhar**: gera uma imagem
+1080×1350 com o herói, o final, fase, sabedoria, inimigos, finais encontrados (ou pontos do
+desafio) e o pensador favorito (o de mais respostas boas), com uma frase dele. No celular
+abre o compartilhamento do sistema (WhatsApp, Instagram); no computador baixa a imagem e
+copia o texto com o link.
+
+## Trilha por mundo
+
+Cada mundo já tinha tema próprio; agora cada um tem percussão própria: Mata em baião
+(zabumba e triângulo), Cerrado em Brasa com bigorna no contratempo, Torre com tique de
+relógio. Chefe da Mata e chefe do Cerrado ganharam temas próprios (a Coroa mantém o dela)
+e as salas de pensador e biblioteca, e os diálogos, tocam um tema lento só de pad e sino.
+
 ## Camada Unity (entregue antes)
 
 `Assets/Scripts/Camera/`: `CameraFollow2D.cs`, `CameraRoom2D.cs`, `CameraPortal2D.cs`,

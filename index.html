@@ -88,6 +88,9 @@ h1.titulo em{display:block; font-style:normal; font-size:.24em; letter-spacing:.
 .lema{font-family:var(--f-body); font-style:italic; color:var(--bone-dim);
   max-width:36ch; font-size:clamp(14px,1.7vw,17px); line-height:1.6; margin:0}
 .menu-botoes{display:flex; flex-direction:column; gap:9px; margin-top:6px; width:min(320px,86vw)}
+.menu-botoes .btn{white-space:nowrap}
+.menu-botoes .btn.grande{white-space:normal}
+.menu-botoes .trio .btn{letter-spacing:.06em; padding-left:6px; padding-right:6px}
 .btn{font-family:var(--f-ui); font-size:19px; font-weight:600; letter-spacing:.16em;
   text-transform:uppercase; padding:13px 22px; border:1px solid var(--iron3);
   background:linear-gradient(#211C17,#17130F); color:var(--bone); transition:.16s ease}
@@ -316,6 +319,20 @@ h2.secao{font-family:var(--f-disp); font-weight:700; margin:0; font-size:clamp(2
 .painel p{font-size:15.5px; line-height:1.68; color:#C9BEAB; margin:0 0 12px}
 .painel p em{color:var(--brass-hi); font-style:italic}
 .painel .acoes{display:flex; gap:10px; flex-wrap:wrap; margin-top:20px}
+#toastConq{position:fixed; left:50%; top:16px; transform:translate(-50%,-140%); z-index:90; display:grid; grid-template-columns:34px 1fr; gap:10px; align-items:center;
+  background:rgba(20,16,12,.96); border:1px solid var(--brass); padding:10px 16px 10px 12px; min-width:260px; max-width:min(440px,92vw);
+  box-shadow:0 8px 30px rgba(0,0,0,.6); transition:transform .4s ease; pointer-events:none}
+#toastConq.on{transform:translate(-50%,0)}
+#toastConq i{font-style:normal; font-size:24px; color:var(--brass-hi); text-align:center}
+#toastConq small{display:block; font-family:var(--f-ui); font-size:10.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--bone-dim)}
+#toastConq b{display:block; font-family:var(--f-disp); font-size:16px; color:var(--brass-hi)}
+#toastConq span{display:block; font-size:13px; color:var(--bone-dim); line-height:1.35}
+.conqs{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:4px}
+.conq{display:grid; grid-template-columns:24px 1fr; gap:8px; background:#15110D; padding:9px 11px; opacity:.5; border-left:2px solid #3A332B}
+.conq.ok{opacity:1; border-left-color:var(--brass)}
+.conq i{font-style:normal; color:var(--brass-hi); font-size:16px}
+.conq b{display:block; font-family:var(--f-ui); font-size:15px; letter-spacing:.04em; color:var(--bone)}
+.conq span{display:block; font-size:12.5px; color:var(--bone-dim); line-height:1.35}
 .resumo{display:grid; grid-template-columns:repeat(auto-fit,minmax(118px,1fr)); gap:1px; background:var(--iron2); border:1px solid var(--iron2); margin:16px 0}
 .resumo div{background:#15110D; padding:11px 13px}
 .resumo dt{font-family:var(--f-ui); font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--bone-dim)}
@@ -594,9 +611,13 @@ h2.secao{font-family:var(--f-disp); font-weight:700; margin:0; font-size:clamp(2
       <div class="menu-botoes">
         <button class="btn primaria grande" id="btnContinuar" style="display:none">Continuar jornada</button>
         <button class="btn primaria grande" id="btnJogar">Começar a jornada</button>
-        <button class="btn" id="btnCodex">Codex da Ética</button>
-        <button class="btn" id="btnComo">Como jogar</button>
+        <button class="btn" id="btnDiario">Desafio do dia</button>
         <div style="display:flex; gap:9px">
+          <button class="btn" id="btnCodex" style="flex:1">Codex</button>
+          <button class="btn" id="btnConquistas" style="flex:1">Conquistas</button>
+        </div>
+        <div class="trio" style="display:flex; gap:9px">
+          <button class="btn pequena" id="btnComo" style="flex:1.25">Como jogar</button>
           <button class="btn pequena" id="btnOpcoes" style="flex:1">Opções</button>
           <button class="btn pequena" id="btnCreditos" style="flex:1">Créditos</button>
         </div>
@@ -883,7 +904,7 @@ const TEMAS = {
     baixo: lerLinha(['a1 . a1 . e2 . g1 .','d2 . d2 . a1 . c2 .','f1 . f1 . c2 . e2 .','g1 . g1 . d2 . b1 .']),
     pluck: lerLinha(['a3 . c4 e4 . d4 . c4','d4 . f4 a4 . g4 . f4','f3 . a3 c4 . a3 . g3','g3 . b3 d4 . c4 b3 .']),
     sopro: lerLinha(['. . . . a4 - - .','. . g4 - e4 . . .','. . . . c5 - b4 .','a4 - . g4 . . . .']),
-    perc:  lerLinha(['k . h . s . h .','k . h . s . h k','k . h . s . h .','k k h . s . h h']) },
+    perc:  lerLinha(['z . t z . . t .','z . t . z . t t','z . t z . . t .','z z t . z . t t']) },
 
   /* ---- mundo 2: Cidade Baixa — mi frígio, mais tenso ---- */
   mundo2: { bpm:112, ganho:1,
@@ -891,7 +912,7 @@ const TEMAS = {
     baixo: lerLinha(['e1 . e1 e1 . f1 . .','f1 . f1 . c2 . bb1 .','e1 . e1 e1 . g1 . .','d2 . d2 . a1 . f1 .']),
     pluck: lerLinha(['e3 f3 . e3 . b3 . a3','f3 . e3 . c4 . b3 .','e3 f3 . g3 . b3 . c4','d4 . c4 b3 . a3 g3 .']),
     sopro: lerLinha(['. . . . e4 - f4 .','. . . e4 - . . .','. . . . g4 - f4 e4','. . f4 - e4 . . .']),
-    perc:  lerLinha(['k . h k s . h .','k . h . s . h h','k . h k s . h .','k k h . s s h .']) },
+    perc:  lerLinha(['k . a k s . h .','k . h . s . a h','k . a k s . h .','k k h . s a h .']) },
 
   /* ---- mundo 3: A Torre — dó menor mecânico, pulso constante ---- */
   mundo3: { bpm:126, ganho:1,
@@ -899,7 +920,7 @@ const TEMAS = {
     baixo: lerLinha(['c1 c1 . c1 g1 . eb1 .','c1 c1 . c1 ab1 . g1 .','bb0 bb0 . bb0 f1 . d1 .','g1 g1 . d1 . b0 . .']),
     pluck: lerLinha(['c4 . eb4 . g4 . eb4 .','c4 . ab3 . c4 . eb4 .','bb3 . d4 . f4 . d4 .','g3 . b3 . d4 . f4 .']),
     sino:  lerLinha(['. . . . . . . .','. . . . c5 - . .','. . . . . . . .','. . eb5 . d5 - . .']),
-    perc:  lerLinha(['k h h k s h h .','k h h k s h h h','k h h k s h h .','k h k h s s h h']) },
+    perc:  lerLinha(['k r h r s r h r','k r h k s r h r','k r h r s r h r','k h k r s s h r']) },
 
   /* ---- chefe: motivo curto e repetido, cresce em cima do jogador ---- */
   chefe: { bpm:140, ganho:1.05,
@@ -908,6 +929,29 @@ const TEMAS = {
     pluck: lerLinha(['d4 . f4 . a4 . f4 .','d4 . bb3 . d4 . f4 .','eb4 . g4 . bb4 . g4 .','a4 . c#5 . e5 . c#5 .']),
     sopro: lerLinha(['. . . . . . . .','. . . . d5 - c5 .','. . . . . . . .','bb4 - a4 . . . . .']),
     perc:  lerLinha(['k h k h s h k h','k h k h s h s h','k h k h s h k h','k k s s k k s s']) },
+
+  /* ---- chefe da Mata: o mesmo motivo, em baião apressado ---- */
+  chefe1: { bpm:136, ganho:1.05,
+    acordes:[['a2','c3','e3'],['a2','c3','f3'],['g2','b2','d3'],['e2','g#2','b2']],
+    baixo: lerLinha(['a1 a1 . a1 . e2 . c2','a1 a1 . a1 . f2 . e2','g1 g1 . g1 . d2 . b1','e1 e1 . b1 . e1 . g#1']),
+    pluck: lerLinha(['a4 . c5 . e5 . c5 .','a4 . f4 . a4 . c5 .','g4 . b4 . d5 . b4 .','e4 . g#4 . b4 . g#4 .']),
+    sopro: lerLinha(['. . . . . . . .','. . . . a5 - g5 .','. . . . . . . .','f5 - e5 . . . . .']),
+    perc:  lerLinha(['z t z t s t z t','z t z t s t s t','z t z t s t z t','z z s s z z s t']) },
+
+  /* ---- chefe do Cerrado: bigorna no contratempo ---- */
+  chefe2: { bpm:144, ganho:1.05,
+    acordes:[['e2','g2','b2'],['f2','a2','c3'],['d2','f2','a2'],['b1','d#2','f#2']],
+    baixo: lerLinha(['e1 e1 . e1 . b1 . g1','f1 f1 . f1 . c2 . a1','d1 d1 . d1 . a1 . f1','b0 b0 . f#1 . b0 . d#1']),
+    pluck: lerLinha(['e4 . g4 . b4 . g4 .','f4 . a4 . c5 . a4 .','d4 . f4 . a4 . f4 .','b3 . d#4 . f#4 . d#4 .']),
+    sopro: lerLinha(['. . . . . . . .','. . . . e5 - d5 .','. . . . . . . .','c5 - b4 . . . . .']),
+    perc:  lerLinha(['k a k h s a k h','k a k h s h s a','k a k h s a k h','k k s a k k s s']) },
+
+  /* ---- pensadores: lento, só pad e sino, para pensar ---- */
+  pensador: { bpm:60, ganho:.7,
+    acordes:[['d3','f3','a3','c4'],['g2','bb2','d3','f3'],['c3','e3','g3','b3'],['a2','c3','e3','g3']],
+    baixo: lerLinha(['d2 . . . . . . .','g1 . . . . . . .','c2 . . . . . . .','a1 . . . . . . .']),
+    sino:  lerLinha(['. . a4 . . . f4 .','. . d5 . c5 . . .','. . e4 . g4 . . .','. . c5 . . b4 a4 .']),
+    perc:  lerLinha(['. . . . . . . .','. . . . . . . .','. . . . . . . .','. . . . . . . .']) },
 
   /* ---- vitória: fanfarra curta em ré maior ---- */
   vitoria: { bpm:104, ganho:1, laco:false,
@@ -982,6 +1026,21 @@ function voz(tipo, midi, t0, dur, vol){
 }
 function percussao(tok, t0, vol){
   if (!AC || !OPC.som) return;
+  if (tok==='z'){            // zabumba: grave, mais longa que o bumbo
+    const o=AC.createOscillator(), g=AC.createGain();
+    o.type='sine'; o.frequency.setValueAtTime(96,t0); o.frequency.exponentialRampToValueAtTime(52,t0+.2);
+    g.gain.setValueAtTime(vol*1.7,t0); g.gain.exponentialRampToValueAtTime(.0008,t0+.32);
+    o.connect(g); g.connect(masterGain); o.start(t0); o.stop(t0+.36); return;
+  }
+  if (tok==='t' || tok==='a' || tok==='r'){   // triângulo, bigorna, relógio: metais curtos
+    const P = tok==='t' ? {f:3950, h:[1,1.5,2.4], dur:.42, v:.16}
+            : tok==='a' ? {f:880,  h:[1,2.76,5.4], dur:.5, v:.32}
+            :             {f:2600, h:[1,1.9],      dur:.035,v:.22};
+    const g=AC.createGain(); g.gain.setValueAtTime(vol*P.v,t0); g.gain.exponentialRampToValueAtTime(.0005,t0+P.dur);
+    P.h.forEach((m,i)=>{ const o=AC.createOscillator(); o.type= tok==='r'?'square':'sine'; o.frequency.value=P.f*m;
+      const gi=AC.createGain(); gi.gain.value=1/(i+1); o.connect(gi); gi.connect(g); o.start(t0); o.stop(t0+P.dur+.05); });
+    g.connect(masterGain); return;
+  }
   if (tok==='k'){
     const o=AC.createOscillator(), g=AC.createGain();
     o.type='sine'; o.frequency.setValueAtTime(130,t0);
@@ -1045,7 +1104,9 @@ function temaDaSala(){
   if (typeof S==='undefined' || !S || !S.rodando || !S.grafo) return 'menu';
   let s = null;
   try { s = salaAtual(); } catch(e){ s = null; }
+  if (s && s.tipo==='chefe' && S.mundo<3) return 'chefe'+S.mundo;
   if (s && (s.tipo==='chefe' || s.tipo==='minichefe')) return 'chefe';
+  if (s && (s.tipo==='filosofo' || s.tipo==='biblioteca')) return 'pensador';
   return 'mundo' + clamp(S.mundo||1,1,3);
 }
 function ajustarMusica(){ if (AC) tocarTema(temaDaSala()); }
@@ -1301,7 +1362,7 @@ function armaAleatoria(nivel, forcarRaridade){
       const w = criarArma(u.arq, 'lendaria', u.elem, u.nome, u.desc); w.unica = u.unica; if (u.unica==='pampas') w.n = 3; return w;
     }
   }
-  const disponiveis = Object.keys(ARQ).filter(k => ARQ_INICIAIS.includes(k) || (META.desbloqueadas||[]).includes(k));
+  const disponiveis = Object.keys(ARQ).filter(k => ARQ_INICIAIS.includes(k) || (!S.diario && (META.desbloqueadas||[]).includes(k)));
   const arqId = pick(disponiveis.length?disponiveis:ARQ_INICIAIS);
   const rar = forcarRaridade ? RARIDADES.find(r=>r.id===forcarRaridade) : sortearRaridade(nivel);
   const a = ARQ[arqId];
@@ -2309,6 +2370,9 @@ function arcoEletrico(origem, dmg){
 }
 function matarInimigo(e){
   e.morto=true; S.mortesInimigos++;
+  if (e.ideia==='desmedido' && (e.furiaMax||0)<=.5) conquistar('medida');
+  if (e.ideia==='calculista' && (e.libertou||0)>=2 && !e.matouPreso) conquistar('ninguemMeio');
+  if (e.acorrentado && !e.acorrentado.morto) e.acorrentado.matouPreso=1;
   faisca(e.x,e.y,e.cor,16,260,.7); SFX.morte();
   S.hitstop=Math.max(S.hitstop,.05);
   const p=S.p;
@@ -2355,6 +2419,7 @@ function danoJogador(valor){
   if (p.meioTermo){ const f=p.vida/p.vidaMax; if (f>=.4&&f<=.7) mult*=.85; }
   const v=Math.max(1, Math.round(valor*mult));
   p.vida-=v; p.invuln=1.15;
+  S.danoTomado=(S.danoTomado||0)+v; S.danoFase=(S.danoFase||0)+v; S.danoChefe=(S.danoChefe||0)+v;
   if (OPC.tremor) S.cam.tremor=Math.min(1.3,S.cam.tremor+.55);
   S.hitstop=.06;
   faisca(p.x,p.y,'#A83E36',14,240,.6); SFX.dano();
@@ -2381,6 +2446,7 @@ function coletar(it){
 }
 function trocarArmaChao(it){
   const p=S.p, nova=it.arma;
+  registrarArmaUsada(nova);
   if (p.armas.length < 2){
     // segundo espaço ainda vazio: a arma entra e nada cai no chão
     p.armas.push(nova);
@@ -2709,12 +2775,12 @@ function quebrarProp(o,dm){
    ================================================================== */
 function criarInimigo(tipoId, x, y, opc){
   const d = INIMIGOS[tipoId];
-  const ordem = 1 + ((META.nivelOrdem||1)-1)*.28;
+  const ordem = 1 + (nivelOrdem()-1)*.28;
   const esc = (1 + (S.mundo-1)*.5 + (S.fase-1)*.07) * ordem;
   const e = {
     tipo:tipoId, nome:d.nome, x, y, vx:0, vy:0, r:d.r, cor:d.cor,
     hp:Math.round(d.hp*esc), hpMax:Math.round(d.hp*esc),
-    vel:d.vel*(1+(S.mundo-1)*.05)*(1+((META.nivelOrdem||1)-1)*.09), dano:d.dano, ia:d.ia,
+    vel:d.vel*(1+(S.mundo-1)*.05)*(1+(nivelOrdem()-1)*.09), dano:d.dano, ia:d.ia,
     alc:d.alc||260, cad:d.cad||1.5, bvel:d.bvel||240,
     tel:d.tel||.4, telT:0, telMax:1, acao:null, telAng:0,
     contato:d.contato||0, escudo:d.ia==='escudeiro'?1:0,
@@ -2837,7 +2903,7 @@ function atualizarIdeia(e, dt){
     const fugindo = e.dPrev!=null && d>e.dPrev+dt*30 && d>215;
     if (fugindo || d>380) e.furia=Math.min(1, e.furia+dt*.45);
     else if (d>=95 && d<=215) e.furia=Math.max(0, e.furia-dt*.35);
-    e.dPrev=d;
+    e.dPrev=d; e.furiaMax=Math.max(e.furiaMax||0, e.furia);
     e.vel=e.velBase*(1+e.furia*.9);
     e.dano=e.danoBase+(e.furia>.65?1:0);
     if (e.furia>.65 && Math.random()<.25) faisca(e.x,e.y-e.r,'#C0553F',1,60,.3);
@@ -2876,6 +2942,7 @@ function perguntarSofista(e){
       flutuar(e.x,e.y-e.r-40,'"…não sei."','#DCCFA8',true); SFX.premio();
       mostrarAviso(q.expl, 2600);
       S.sofistasRefutados=(S.sofistasRefutados||0)+1;
+      META.sofistas=(META.sofistas||0)+1; salvarMeta(); if (META.sofistas>=3) conquistar('sofistas');
     } else {
       e.hp=Math.min(e.hpMax, e.hp+e.hpMax*.3); e.vel*=1.12;
       flutuar(e.x,e.y-e.r-40,'"Viu? Eu sabia."','#C0553F',true); SFX.marca();
@@ -2885,7 +2952,7 @@ function perguntarSofista(e){
 function libertarInimigo(a){
   if (!a || a.morto) return;
   const c=a.acorrentado;
-  if (c && c.correntes) c.correntes=c.correntes.filter(x=>x!==a);
+  if (c && c.correntes){ c.correntes=c.correntes.filter(x=>x!==a); c.libertou=(c.libertou||0)+1; }
   a.acorrentado=null; a.morto=true; a.libertado=true;
   faisca(a.x,a.y,'#7FC6E8',14,200,.6); SFX.premio();
   flutuar(a.x,a.y-30,'livre','#7FC6E8',true);
@@ -3254,6 +3321,7 @@ const CHEFES = {
     lore:'A máquina que concluiu que a liberdade humana é a causa de todo o caos. Ela não odeia você. É pior: ela se importa.'}
 };
 function criarChefe(id){
+  S.danoChefe=0;
   const d=CHEFES[id], m=S.mapa;
   const e={ tipo:id, chefe:true, nome:d.nome, cor:d.cor, ia:'chefe',
     x:m.w*T/2, y:m.h*T*.34, vx:0, vy:0, r:d.r,
@@ -3425,6 +3493,7 @@ function desbloquearArma(){
 }
 function matarChefe(e){
   e.morto=true; S.boss=null;
+  if (!S.danoChefe) conquistar('chefeIleso');
   desbloquearArma();
   el('bossBarra').classList.remove('on');
   for(let i=0;i<5;i++) setTimeout(()=>{ faisca(e.x+rnd(-40,40), e.y+rnd(-40,40), e.cor, 26, 420, 1); SFX.morte(); }, i*180);
@@ -3911,7 +3980,10 @@ function iniciarRun(heroi){
   S.provasFeitas=[]; S.prova=null; S.fluxoIdx=0; S.fluxoT=0; S.vistos=[];
   S.travaRara=0; S.unicasVistas=[]; S.baralhoOpcional=[]; S.armasDadas=0; S.parceiraDada=false; S.ideiasFeitas={}; S.ideiasVistas=[]; S.portasExtras=[]; S.aliado=null; S.ideiaForte=0; S.precoMundo=null; S.finalAlcancado=null; S.ecosVistos=0; S.libertados=0; S.sofistasRefutados=0; S.perguntasFeitas=0;
   S.rodando=true; S.pausado=false;
+  S.danoTomado=0; S.danoFase=0; S.danoChefe=0; S.fimPendente=false;
   mostrarTela('jogo');
+  registrarArmaUsada(S.p.armas[0]);
+  semear('inicio');
   S.grafo = gerarGrafo(S.mundo, S.fase);
   entrarSala(null, true);
   audioLigar(); ajustarMusica();
@@ -3922,6 +3994,7 @@ function entrarSala(dirEntrada, nova){
   const sala = salaAtual();
   const B = BIOMAS[S.mundo-1];
   const primeiraVez = !sala.mapa;
+  if (primeiraVez) semear('sala'+S.mundo+'-'+S.fase+'-'+S.sala);
   if (primeiraVez){
     const portas = {};
     for (const d of Object.keys(sala.viz)) portas[d]=true;
@@ -4214,6 +4287,8 @@ function avancarFase(){
   const bons = S.respostas.filter(r=>r.v==='bom').length;
   const ruins = S.respostas.filter(r=>r.v==='ruim').length;
   let mundoNovo = false;
+  if (!S.danoFase) conquistar('faseIlesa');
+  S.danoFase=0;
   S.fase++;
   if (S.fase>5){
     S.fase=1; S.mundo++;
@@ -4225,6 +4300,8 @@ function avancarFase(){
   cutscenePortal(titulo, ()=>{
     S.sala=0;
     if (mundoNovo) prepararEcos();
+    if (mundoNovo && S.mundo===2) conquistar('mundo1');
+    semear('fase'+S.mundo+'-'+S.fase);
     S.grafo = gerarGrafo(S.mundo, S.fase);
     entrarSala(null, true);
     S.pausado = false;
@@ -6476,11 +6553,11 @@ function mostrarTela(nome){
   S.tela=nome;
   if (nome!=='menu') armarVolta();
   for (const c of CAMADAS) el(c).classList.remove('on');
-  if (nome==='menu'){ const bc=el('btnContinuar'); if(bc) bc.style.display=(S.rodando&&S.p)?'':'none'; }
+  if (nome==='menu'){ const bc=el('btnContinuar'); if(bc) bc.style.display=(S.rodando&&S.p)?'':'none'; if (!S.rodando) restaurarAcaso(); }
   setTimeout(ligarSomBotoes, 0);
   if (nome==='jogo'){ el('hud').classList.add('on'); if (IN.toque) el('toque').classList.add('on'); }
   else el(nome).classList.add('on');
-  if (AC){ if (nome==='jogo') ajustarMusica(); else tocarTema('menu'); }
+  if (AC){ if (nome==='jogo') ajustarMusica(); else if (nome==='dialogo') tocarTema('pensador'); else tocarTema('menu'); }
 }
 let avisoTimer=null;
 function mostrarAviso(txt, ms=1600){
@@ -6491,7 +6568,7 @@ function atualizarHUD(){
   const p=S.p; if(!p) return;
   el('uiMoedas').textContent=S.moedas;
   el('uiSab').textContent=S.sabedoria;
-  el('uiFase').textContent=nomeFase()+'  '+(BIOMAS[S.mundo-1]||BIOMAS[0]).nome+((META.nivelOrdem||1)>1?'  ·  Ordem '+romano(META.nivelOrdem):'');
+  el('uiFase').textContent=nomeFase()+'  '+(BIOMAS[S.mundo-1]||BIOMAS[0]).nome+(S.diario?'  ·  Desafio do dia':((META.nivelOrdem||1)>1?'  ·  Ordem '+romano(META.nivelOrdem):''));
   let t='';
   for(let i=1;i<=5;i++) t+=`<span class="${i===5?'no boss':'no'} ${i<S.fase?'feito':''} ${i===S.fase?'atual':''}"></span>`;
   el('uiTrilha').innerHTML=t;
@@ -6583,6 +6660,13 @@ function alternarPausa(){
 }
 let ultimoPainel=null;
 function abrirPainel(cfg){
+  if (S.fimPendente){
+    S.fimPendente=false;
+    const res=registrarDiario();
+    if (res) cfg.corpo=(cfg.corpo||'')+htmlDiario(res);
+    cfg.acoes=(cfg.acoes||[]).slice(); cfg.acoes.splice(1,0,{t:'Compartilhar', fn:()=>compartilharResultado()});
+    salvarMeta(); restaurarAcaso();
+  }
   ultimoPainel=cfg;
   const {kicker,titulo,corpo,acoes}=cfg;
   el('pnKicker').textContent=kicker||'';
@@ -6623,6 +6707,7 @@ function abrirDialogo(enc){
 function responder(enc, op){
   const p=S.p;
   S.respostas.push({quem:enc.quem, v:op.v, id:enc.id, mundo:S.mundo});
+  { const dele=S.respostas.filter(r=>r.quem===enc.quem); if (dele.length>=2 && dele.every(r=>r.v==='bom')) conquistar('todas_'+enc.quem); }
   let premioHTML='';
   if (op.v==='bom'){
     S.sabedoria++;
@@ -7007,7 +7092,7 @@ window.addEventListener('touchstart', ()=>{ if (S.emCutscene && cutFim) cutFim()
 const ECOS = {
   socrates: {
     bom: {t:'Aliado: o Aprendiz de Atenas', d:'Ele viu você perguntar antes de acreditar e resolveu descer junto. Luta ao seu lado neste mundo inteiro.',
-          ap:()=>{ S.aliado={mundo:S.mundo, cd:1.2}; }},
+          ap:()=>{ S.aliado={mundo:S.mundo, cd:1.2}; conquistar('aliado'); }},
     ruim:{t:'Os Sofistas ouviram falar de você', d:'Quem concorda depressa vira exemplo. A ideia deste mundo chega mais forte.',
           ap:()=>{ S.ideiaForte=S.mundo; }} },
   aristoteles: {
@@ -7106,6 +7191,10 @@ function registrarFinal(id){
   const novo = !META.finais.includes(id);
   if (novo) META.finais.push(id);
   S.finalAlcancado=id;
+  if (id==='refutada') conquistar('refutada');
+  if (id==='mosca') conquistar('mosca');
+  if (META.finais.length>=Object.keys(FINAIS).length) conquistar('seisFinais');
+  if (id!=='ordem' && id!=='mosca' && !S.danoTomado) conquistar('jornadaIlesa');
   return novo;
 }
 function linhaFinais(id){
@@ -7119,8 +7208,178 @@ function caminhoDaLuta(){
   return 'incerta';
 }
 
+/* ==================================================================
+   DESAFIO DO DIA — a mesma masmorra para todo mundo no mesmo dia.
+   Cada fase e cada sala nascem de uma semente feita da data (horário
+   de Brasília) e do lugar onde você está. Herói do dia fixo, Ordem I
+   e só as armas iniciais: ninguém começa com vantagem.
+   ================================================================== */
+const RANDOM_ORIGINAL = Math.random;
+function hashTxt(str){ let h=2166136261>>>0; for (let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return h>>>0; }
+function geradorSemente(a){ return function(){ a=(a+0x6D2B79F5)|0; let t=Math.imul(a^(a>>>15),1|a); t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; }; }
+function semear(chave){ if (!S.diario) return; Math.random = geradorSemente(hashTxt(S.diario.data+'|'+chave)); }
+function restaurarAcaso(){ Math.random = RANDOM_ORIGINAL; }
+function dataDoDia(){ return new Date(Date.now()-3*3600e3).toISOString().slice(0,10); }
+function dataCurta(d){ const [a,m,dd]=d.split('-'); return dd+'/'+m; }
+function heroiDoDia(d){ return HEROIS[hashTxt('heroi|'+d)%HEROIS.length]; }
+function nivelOrdem(){ return S.diario ? 1 : (META.nivelOrdem||1); }
+function pontosDaJornada(){
+  const prog=(S.mundo-1)*5+S.fase;
+  const venceu = S.finalAlcancado && S.finalAlcancado!=='ordem' && S.finalAlcancado!=='mosca' ? 1000 : (S.finalAlcancado ? 400 : 0);
+  return prog*100 + (S.salasLimpas||0)*10 + (S.sabedoria||0)*30 + venceu;
+}
+function abrirDesafioDoDia(){
+  const d=dataDoDia(), h=heroiDoDia(d), reg=(META.diario||{})[d];
+  abrirPainel({ kicker:'Desafio do dia · '+dataCurta(d), titulo:'A mesma masmorra para todo mundo',
+    corpo:`<p>Hoje todo mundo desce pelas <em>mesmas salas</em>, com os mesmos inimigos e os mesmos pensadores no caminho. Amanhã a masmorra muda.</p>
+      <p>Herói do dia: <b style="color:${h.cor}">${h.nome}</b>, ${h.papel.toLowerCase()}. Ordem I e só as armas iniciais, para ninguém começar com vantagem.</p>
+      <p style="font-size:14px;color:#9C9081">Os pontos contam o quanto você desceu, as salas limpas, a sabedoria e o final. No fim, compartilhe o resultado e compare com quem jogou o mesmo dia.</p>
+      ${reg?`<div class="resumo"><div><dt>Seu melhor hoje</dt><dd>${reg.melhor.toLocaleString('pt-BR')}</dd></div><div><dt>Chegou em</dt><dd>${reg.fase}</dd></div><div><dt>Tentativas</dt><dd>${reg.tentativas}</dd></div></div>`:''}`,
+    acoes:[{t:'Descer', primaria:true, fn:()=>{ audioLigar(); S.diario={data:d, heroi:h.id}; iniciarRun(h); }},
+           {t:'Voltar', fn:()=>mostrarTela('menu')}] });
+}
+function registrarDiario(){
+  if (!S.diario) return null;
+  const d=S.diario.data, pts=pontosDaJornada();
+  META.diario = META.diario||{};
+  const r = META.diario[d] || {melhor:0, fase:'', tentativas:0};
+  r.tentativas++;
+  const recorde = pts>r.melhor;
+  if (recorde){ r.melhor=pts; r.fase=nomeFase(); }
+  META.diario[d]=r;
+  // guarda só os últimos 30 dias
+  const dias=Object.keys(META.diario).sort(); while (dias.length>30) delete META.diario[dias.shift()];
+  conquistar('diario');
+  return {pts, recorde, r, d};
+}
+function htmlDiario(res){
+  return `<div class="resumo" style="border-color:#4FD6E0"><div><dt>Desafio de ${dataCurta(res.d)}</dt><dd>${res.pts.toLocaleString('pt-BR')} pts</dd></div>
+    <div><dt>${res.recorde?'Novo recorde do dia':'Seu melhor hoje'}</dt><dd>${res.r.melhor.toLocaleString('pt-BR')}</dd></div>
+    <div><dt>Tentativas</dt><dd>${res.r.tentativas}</dd></div></div>`;
+}
+
+/* ==================================================================
+   CONQUISTAS — guardadas no aparelho, com aviso na hora.
+   ================================================================== */
+const CONQUISTAS = [
+  {id:'mundo1',   nome:'Saiu da Mata',            desc:'Chegue ao segundo mundo.'},
+  {id:'faseIlesa',nome:'Sem um arranhão',         desc:'Termine uma fase inteira sem tomar dano.'},
+  {id:'chefeIleso',nome:'Intocável',              desc:'Derrube um chefe sem tomar dano na luta.'},
+  {id:'jornadaIlesa',nome:'Ninguém encostou',     desc:'Vença a jornada sem tomar dano nenhum.'},
+  {id:'todas_socrates',nome:'Discípulo de Sócrates',desc:'Acerte todas as perguntas de Sócrates numa jornada (pelo menos duas).'},
+  {id:'todas_aristoteles',nome:'No Liceu',        desc:'Acerte todas as perguntas de Aristóteles numa jornada (pelo menos duas).'},
+  {id:'todas_kant',nome:'Em Königsberg',          desc:'Acerte todas as perguntas de Kant numa jornada (pelo menos duas).'},
+  {id:'todas_bauman',nome:'Em Leeds',             desc:'Acerte todas as perguntas de Bauman numa jornada (pelo menos duas).'},
+  {id:'sofistas', nome:'Moscardo',                desc:'Refute três Sofistas de Bronze, somando todas as jornadas.'},
+  {id:'medida',   nome:'Na medida',               desc:'Derrube o Desmedido sem deixar a fúria passar da metade.'},
+  {id:'ninguemMeio',nome:'Ninguém é só meio',     desc:'Derrube o Calculista depois de libertar dois acorrentados, sem matar nenhum deles.'},
+  {id:'aliado',   nome:'Aprendiz de Atenas',      desc:'Ganhe a companhia do aprendiz.'},
+  {id:'unica',    nome:'Coisa rara',              desc:'Pegue uma arma única.'},
+  {id:'arsenal',  nome:'Arsenal completo',        desc:'Use todas as 19 armas, somando todas as jornadas.'},
+  {id:'refutada', nome:'Ela parou sozinha',       desc:'Alcance o final verdadeiro.'},
+  {id:'mosca',    nome:'Mosca de Váldria',        desc:'Aceite a oferta da Coroa sem deixar de perguntar.'},
+  {id:'seisFinais',nome:'Todos os caminhos',      desc:'Encontre os seis finais.'},
+  {id:'ordem2',   nome:'Ordem II',                desc:'Suba de Ordem.'},
+  {id:'diario',   nome:'Mesma masmorra',          desc:'Jogue um desafio do dia até o fim.'}
+];
+let filaConquistas=[], conquistaTimer=null;
+function conquistar(id){
+  META.conquistas = META.conquistas||[];
+  if (META.conquistas.includes(id)) return;
+  const c=CONQUISTAS.find(x=>x.id===id); if (!c) return;
+  META.conquistas.push(id); salvarMeta();
+  filaConquistas.push(c); if (!conquistaTimer) proximaConquista();
+}
+function proximaConquista(){
+  const c=filaConquistas.shift();
+  let t=document.getElementById('toastConq');
+  if (!c){ if (t) t.classList.remove('on'); conquistaTimer=null; return; }
+  if (!t){ t=document.createElement('div'); t.id='toastConq'; document.body.appendChild(t); }
+  t.innerHTML=`<i>✦</i><div><small>Conquista</small><b>${c.nome}</b><span>${c.desc}</span></div>`;
+  t.classList.add('on'); try{ SFX.premio(); }catch(e){}
+  conquistaTimer=setTimeout(()=>{ t.classList.remove('on'); conquistaTimer=setTimeout(proximaConquista, 420); }, 3200);
+}
+function abrirConquistas(){
+  const tem=META.conquistas||[];
+  const html=CONQUISTAS.map(c=>{ const ok=tem.includes(c.id);
+    return `<div class="conq${ok?' ok':''}"><i>${ok?'✦':'·'}</i><div><b>${c.nome}</b><span>${c.desc}</span></div></div>`; }).join('');
+  abrirPainel({ kicker:'O que você já fez', titulo:'Conquistas · '+tem.length+' de '+CONQUISTAS.length,
+    corpo:`<div class="conqs">${html}</div><p style="font-size:13px;color:#9C9081;margin-top:10px">Finais encontrados: ${(META.finais||[]).length} de 6 · ${(META.finais||[]).map(f=>FINAIS[f].nome).join(', ')||'nenhum ainda'}.</p>`,
+    acoes:[{t:'Voltar', primaria:true, fn:()=>mostrarTela('menu')}] });
+}
+function registrarArmaUsada(w){
+  if (!w || !w.arq) return;
+  META.armasUsadas=META.armasUsadas||[];
+  if (!META.armasUsadas.includes(w.arq)){ META.armasUsadas.push(w.arq); salvarMeta(); }
+  if (Object.keys(ARQ).every(k=>META.armasUsadas.includes(k))) conquistar('arsenal');
+  if (w.unica) conquistar('unica');
+}
+
+/* ==================================================================
+   COMPARTILHAR — uma imagem pronta para WhatsApp e Instagram.
+   ================================================================== */
+function pensadorFavorito(){
+  const cont={};
+  for (const r of S.respostas||[]){ cont[r.quem]=cont[r.quem]||{b:0,n:0}; cont[r.quem].n++; if (r.v==='bom') cont[r.quem].b++; }
+  const ks=Object.keys(cont); if (!ks.length) return null;
+  ks.sort((a,b)=>cont[b].b-cont[a].b || cont[b].n-cont[a].n);
+  return ks[0];
+}
+const FRASE_FAVORITO = {
+  socrates:'"O que não sei, também não julgo saber."',
+  aristoteles:'"Tornamo-nos justos praticando atos justos."',
+  kant:'"Tem coragem de fazer uso do teu próprio entendimento."',
+  bauman:'"A vida líquida é uma vida precária."'
+};
+function cartaoResultado(){
+  const W=1080, H=1350, cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+  const c=cv.getContext('2d');
+  const g=c.createLinearGradient(0,0,0,H); g.addColorStop(0,'#1F1913'); g.addColorStop(1,'#0B0908'); c.fillStyle=g; c.fillRect(0,0,W,H);
+  const rg=c.createRadialGradient(W/2,430,20,W/2,430,520); rg.addColorStop(0,'rgba(200,155,75,.28)'); rg.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle=rg; c.fillRect(0,0,W,H);
+  c.strokeStyle='rgba(200,155,75,.5)'; c.lineWidth=3; c.strokeRect(36,36,W-72,H-72);
+  c.textAlign='center';
+  c.fillStyle='#9C9081'; c.font='600 30px "Barlow Condensed", sans-serif'; c.fillText((S.diario?'DESAFIO DO DIA · '+dataCurta(S.diario.data):'VÁLDRIA · ANO DO FERRO SILENCIOSO').split('').join(' '), W/2, 120);
+  c.fillStyle='#EBC87E'; c.font='700 84px Cinzel, serif'; c.fillText('A Coroa de Ferro', W/2, 215);
+  // herói
+  const h=S.heroi||HEROIS[0], rc=document.createElement('canvas'); rc.width=300; rc.height=176; retrato(rc,h);
+  c.drawImage(rc, W/2-375, 250, 750, 440);
+  const fimId=S.finalAlcancado, fim=fimId?FINAIS[fimId].nome:'Caiu em '+nomeFase();
+  c.fillStyle='#9C9081'; c.font='600 30px "Barlow Condensed", sans-serif'; c.fillText(fimId?'FINAL ALCANÇADO':'FIM DA JORNADA', W/2, 760);
+  c.fillStyle='#EDE3CF'; c.font='700 64px Cinzel, serif'; c.fillText(fim, W/2, 835);
+  c.fillStyle=h.cor; c.font='600 34px Spectral, serif'; c.fillText(h.nome+' · '+h.papel, W/2, 890);
+  // números
+  const nums=[['FASE',nomeFase()],['SABEDORIA',S.sabedoria||0],['INIMIGOS',S.mortesInimigos||0],[S.diario?'PONTOS':'FINAIS', S.diario?pontosDaJornada().toLocaleString('pt-BR'):(META.finais||[]).length+'/6']];
+  nums.forEach(([k,v],i)=>{ const x=W/2+(i-1.5)*230;
+    c.fillStyle='#9C9081'; c.font='600 24px "Barlow Condensed", sans-serif'; c.fillText(k, x, 975);
+    c.fillStyle='#EBC87E'; c.font='700 52px "Barlow Condensed", sans-serif'; c.fillText(String(v), x, 1035); });
+  const fav=pensadorFavorito();
+  if (fav){ const f=PENSADORES[fav];
+    c.fillStyle='#9C9081'; c.font='600 26px "Barlow Condensed", sans-serif'; c.fillText('PENSADOR FAVORITO', W/2, 1110);
+    c.fillStyle=f.cor; c.font='700 44px Cinzel, serif'; c.fillText(f.sigla+'  '+f.nome, W/2, 1165);
+    c.fillStyle='#B4A995'; c.font='italic 30px Spectral, serif'; c.fillText(FRASE_FAVORITO[fav], W/2, 1212); }
+  c.fillStyle='#C89B4B'; c.font='600 30px "Barlow Condensed", sans-serif'; c.fillText('a-coroa-de-ferro.vercel.app', W/2, H-78);
+  return cv;
+}
+function textoResultado(){
+  const fimId=S.finalAlcancado;
+  const base = S.diario ? `Desafio do dia ${dataCurta(S.diario.data)} da Coroa de Ferro: ${pontosDaJornada().toLocaleString('pt-BR')} pontos, cheguei em ${nomeFase()} com ${S.heroi.nome}.`
+    : fimId ? `Cheguei ao final "${FINAIS[fimId].nome}" em A Coroa de Ferro.` : `Caí em ${nomeFase()} em A Coroa de Ferro.`;
+  return base+' Joga também: https://a-coroa-de-ferro.vercel.app';
+}
+async function compartilharResultado(){
+  const cv=cartaoResultado(), texto=textoResultado();
+  const blob=await new Promise(r=>cv.toBlob(r,'image/png'));
+  const arq=new File([blob], 'coroa-de-ferro-resultado.png', {type:'image/png'});
+  try {
+    if (navigator.canShare && navigator.canShare({files:[arq]})){ await navigator.share({files:[arq], text:texto, title:'A Coroa de Ferro'}); return; }
+  } catch(e){ if (e && e.name==='AbortError') return; }
+  // sem compartilhamento nativo: baixa a imagem e copia o texto
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='coroa-de-ferro-resultado.png'; document.body.appendChild(a); a.click(); a.remove();
+  try { await navigator.clipboard.writeText(texto); mostrarAviso('Imagem salva e texto copiado', 2200); } catch(e){ mostrarAviso('Imagem salva', 2000); }
+}
+
 function romano(n){ return ['','I','II','III','IV','V','VI','VII','VIII','IX','X'][Math.min(n,10)]||('x'+n); }
-function encerrarRun(){ S.rodando=false; S.pausado=false; pararMusica(); el('coroaFala').classList.remove('on'); }
+function encerrarRun(){ S.fimPendente=true; S.rodando=false; S.pausado=false; pararMusica(); el('coroaFala').classList.remove('on'); }
 function resumoHTML(){
   return `<div class="resumo">
     <div><dt>Fase alcançada</dt><dd>${nomeFase()}</dd></div>
@@ -7176,7 +7435,7 @@ function vitoria(tipo){
          <p style="font-size:14px;color:#9C9081">Com 5 pontos de sabedoria ou mais, a Coroa te oferece uma terceira resposta na torre — e existe um final que só se alcança por lá.</p>
          ${resumoHTML()}${linhaFinais('incerta')}`,
     acoes:[{t:'Subir para a Ordem '+romano((META.nivelOrdem||1)+1), primaria:true, fn:()=>{
-             META.nivelOrdem=(META.nivelOrdem||1)+1; salvarMeta(); atualizarPlacar(); mostrarTela('selecao'); }},
+             META.nivelOrdem=(META.nivelOrdem||1)+1; conquistar('ordem2'); salvarMeta(); atualizarPlacar(); mostrarTela('selecao'); }},
            {t:'Nova jornada', fn:()=>mostrarTela('selecao')},
            {t:'Codex', fn:()=>{ const cfg=ultimoPainel; abrirCodex(()=>abrirPainel(cfg)); }},
            {t:'Menu', fn:()=>mostrarTela('menu')}]
@@ -7208,7 +7467,7 @@ function finalAlternativo(fim){
   };
   abrirPainel({ kicker:T.kicker, titulo:T.titulo, corpo:T.corpo+resumoHTML()+linhaFinais(fim),
     acoes:[{t:'Subir para a Ordem '+romano((META.nivelOrdem||1)+1), primaria:true, fn:()=>{
-             META.nivelOrdem=(META.nivelOrdem||1)+1; salvarMeta(); atualizarPlacar(); mostrarTela('selecao'); }},
+             META.nivelOrdem=(META.nivelOrdem||1)+1; conquistar('ordem2'); salvarMeta(); atualizarPlacar(); mostrarTela('selecao'); }},
            {t:'Nova jornada', fn:()=>mostrarTela('selecao')},
            {t:'Codex', fn:()=>{ const cfg=ultimoPainel; abrirCodex(()=>abrirPainel(cfg)); }},
            {t:'Menu', fn:()=>mostrarTela('menu')}] });
@@ -7601,7 +7860,9 @@ el('btnCreditos').addEventListener('click', ()=>{
 });
 el('btnVoltarMenu').addEventListener('click', ()=>mostrarTela('menu'));
 el('btnTestar').addEventListener('click', ()=>{ audioLigar(); testarHabilidade(); });
-el('btnIniciar').addEventListener('click', ()=>iniciarRun(heroiEscolhido));
+el('btnIniciar').addEventListener('click', ()=>{ S.diario=null; restaurarAcaso(); iniciarRun(heroiEscolhido); });
+el('btnDiario').addEventListener('click', ()=>{ audioLigar(); abrirDesafioDoDia(); });
+el('btnConquistas').addEventListener('click', ()=>abrirConquistas());
 el('btnCodex').addEventListener('click', ()=>abrirCodex(()=>mostrarTela('menu')));
 setInterval(()=>{
   if (S.tela!=='selecao') return;
