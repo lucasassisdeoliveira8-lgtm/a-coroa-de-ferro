@@ -1314,6 +1314,11 @@ const INIMIGOS = {
   iara:      {nome:'Iara de Bronze',     forma:'sereia',     hp:54, vel:70,  r:18, dano:1, cor:'#7FC6E8', ia:'sereia',     tel:.70, cad:3.2, bvel:230, folclore:1},
   juiz:      {nome:'Juiz de Bronze',     forma:'muro',       hp:100,vel:88,  r:23, dano:2, cor:'#A88C52', ia:'carregador', tel:.55, cad:2.6, elite:1},
 
+  /* ---------- inimigos-ideia (um por mundo, ligados a um pensador) ---------- */
+  sofista:   {nome:'Sofista de Bronze',  forma:'vela',       hp:62, vel:70,  r:17, dano:1, cor:'#C9B08A', ia:'atirador',   tel:.60, alc:280, cad:2.1, bvel:220, ideia:'sofista'},
+  desmedido: {nome:'Desmedido de Ferro', forma:'atarracado', hp:84, vel:64,  r:22, dano:1, cor:'#6A4E3A', ia:'carregador', tel:.62, cad:2.8, ideia:'desmedido'},
+  calculista:{nome:'Calculista da Coroa',forma:'alto',       hp:72, vel:60,  r:18, dano:1, cor:'#9FB4C4', ia:'atirador',   tel:.60, alc:300, cad:2.3, bvel:240, ideia:'calculista'},
+
   /* ---------- bases dos minichefes folclóricos ---------- */
   mapinguari:{nome:'Mapinguari de Ferro',forma:'gigante',    hp:340,vel:62,  r:34, dano:2, cor:'#6B5A3A', ia:'rugidor',    tel:.85, cad:2.8, folclore:1},
   cuca:      {nome:'Cuca de Bronze',     forma:'jacare',     hp:320,vel:78,  r:30, dano:2, cor:'#5E6E4A', ia:'caldeirao',  tel:.80, cad:2.6, folclore:1}
@@ -1703,7 +1708,10 @@ function proximaOpcional(evitar){
    limpo, sem ninguém esperando. A briga começa da segunda sala em diante. */
 function tiposDaFase(mundo, fase){
   if (fase===5) return ['chegada','combate','chefe'];
-  if (fase===1) return ['chegada','combate','tesouro','combate'];
+  if (fase===1){
+    const extras=(S.portasExtras||[]).filter(x=>x.mundo===mundo).map(x=>x.tipo);
+    return ['chegada', ...extras, 'combate','tesouro','combate'];
+  }
   if (fase===2) return ['chegada','combate','minichefe','filosofo','combate'];
   if (fase===3) return ['chegada','combate', (mundo===1?'mercador':pick(['mercador','ferreiro'])), 'combate'];
   return ['chegada','combate', pick(['desafio','altar','biblioteca']), 'filosofo', 'combate'];
@@ -2236,6 +2244,7 @@ function danoInimigo(e, valor, elem, marcaPrimeiro){
   if (e.morto) return;
   const p=S.p;
   let v=valor;
+  if (e.ideia){ const r=ideiaDano(e, v); if (r===null) return; v=r; }
   if (elem==='ferro') v*=1.3;
   if (p && p.primeiroGolpe>1 && !e.tocado){ v*=p.primeiroGolpe; e.tocado=1; flutuar(e.x,e.y-24,'exame','#DCCFA8'); }
   else if (marcaPrimeiro!==false) e.tocado=1;
@@ -2686,6 +2695,7 @@ function criarInimigo(tipoId, x, y, opc){
   };
   e.r = Math.round(e.r * e.va.esc);
   e.cor = tomVariante(e.cor, e.va.tom);
+  if (d.ideia){ e.ideia=d.ideia; e.hp=Math.round(e.hp*1.5); e.hpMax=e.hp; }
   if (opc && opc.mini){
     const M = MINICHEFES[opc.mini];
     e.mini = opc.mini; e.nome = M.nome;
@@ -2693,9 +2703,214 @@ function criarInimigo(tipoId, x, y, opc){
     e.r = Math.round(e.r*M.escala); e.vel *= .92; e.cad *= .8;
   } else if (e.elite){ e.hp*=2.2; e.hpMax=e.hp; e.r+=3; }
   S.inimigos.push(e);
+  if (e.ideia) iniciarIdeia(e);
   if (d.folclore || (opc && opc.mini && MINICHEFES[opc.mini] && MINICHEFES[opc.mini].folclore)) apresentarFolclore(e.tipo);
   return e;
 }
+/* ==================================================================
+   INIMIGOS-IDEIA — a filosofia dentro da luta.
+   Um por mundo, ligado a um pensador. Aparecem nas fases 2 e 4.
+   - Sofista de Bronze (Sócrates): a "certeza" segura todo dano até
+     alguém examinar o que ele afirma. Chegue perto e pergunte.
+   - Desmedido de Ferro (Aristóteles): cresce quando você foge
+     (covardia) e só cai de verdade na distância certa (meio-termo).
+   - Calculista da Coroa (Kant): acorrenta os outros e passa o dano
+     para eles — usa pessoas como meio. Solte as correntes.
+   ================================================================== */
+const IDEIA_DO_MUNDO = ['sofista','desmedido','calculista'];
+const IDEIAS_TXT = {
+  sofista:   {quem:'socrates',    titulo:'SOFISTA DE BRONZE', regra:'A certeza segura todo golpe. Chegue perto e pergunte.'},
+  desmedido: {quem:'aristoteles', titulo:'DESMEDIDO DE FERRO', regra:'Fugir o alimenta. Lute na distância certa: o anel dourado.'},
+  calculista:{quem:'kant',        titulo:'CALCULISTA DA COROA', regra:'Usa os outros como escudo. Solte as correntes e ele fica exposto.'}
+};
+/* Perguntas do Sofista: método de Sócrates — pedir a definição e testar a coerência. */
+const SOFISMAS = [
+  { af:'"A Coroa nunca erra. A prova é que ela nunca errou."',
+    ops:[ {t:'"E quem confere se ela errou? Ela mesma?"', bom:1},
+          {t:'"Então não há mais o que discutir."'},
+          {t:'"Quantos concordam com você?"'} ],
+    expl:'Uma prova que depende de quem está sendo provado não prova nada.' },
+  { af:'"Todo mundo sabe que obedecer é mais seguro."',
+    ops:[ {t:'"Se todos sabem, então está provado."'},
+          {t:'"O que exatamente você chama de seguro?"', bom:1},
+          {t:'"Não importa o que significa: importa quem manda."'} ],
+    expl:'Sócrates começava pedindo a definição. Sem ela, "todo mundo sabe" é só barulho.' },
+  { af:'"Sou sábio porque tenho resposta para tudo."',
+    ops:[ {t:'"Então me diga qual é a resposta certa."'},
+          {t:'"Quem responde tudo merece mandar."'},
+          {t:'"Ter resposta para tudo é o mesmo que saber?"', bom:1} ],
+    expl:'Na Apologia, a sabedoria de Sócrates era não julgar saber o que não sabia.' },
+  { af:'"Justiça é aquilo que a Coroa decide."',
+    ops:[ {t:'"E se ela decidir algo injusto, o que é a justiça então?"', bom:1},
+          {t:'"Então a Coroa é justa por definição."'},
+          {t:'"Justiça não existe, só força."'} ],
+    expl:'Se "justo" for só "o que ela decide", a palavra deixa de dizer alguma coisa.' }
+];
+const FALAS_SOFISTA = ['Eu sei.','É óbvio.','Todo mundo sabe.','Nunca errei.','Não há dúvida.'];
+
+function iniciarIdeia(e){
+  e.velBase=e.vel; e.danoBase=e.dano;
+  if (S.ideiaForte===S.mundo){ e.hp=Math.round(e.hp*1.35); e.hpMax=e.hp; e.forte=true; }
+  if (e.ideia==='sofista'){ e.certeza=true; e.falaT=0; e.fala=pick(FALAS_SOFISTA); }
+  if (e.ideia==='desmedido'){ e.furia=e.forte?.5:0; e.dPrev=null; }
+  if (e.ideia==='calculista'){ e.correntes=[]; e.elosT=.8; }
+  S.ideiasVistas = S.ideiasVistas||[];
+  if (!S.ideiasVistas.includes(e.ideia)){
+    S.ideiasVistas.push(e.ideia);
+    const I=IDEIAS_TXT[e.ideia];
+    setTimeout(()=>mostrarAviso(I.titulo+'\n'+I.regra, 3600), 400);
+  }
+  if (!(META.ideias||[]).includes(e.ideia)){ META.ideias=(META.ideias||[]).concat([e.ideia]); salvarMeta(); }
+}
+function criarIdeia(x, y){
+  const id=IDEIA_DO_MUNDO[S.mundo-1]; if (!id) return null;
+  return criarInimigo(id, x, y);
+}
+/* devolve o dano que passa, ou null se nada passa */
+function ideiaDano(e, v){
+  const p=S.p;
+  if (e.ideia==='sofista'){
+    if (e.certeza){
+      if (!e.avisoT || S.tempo-e.avisoT>1.2){ e.avisoT=S.tempo; flutuar(e.x,e.y-e.r-24,'certeza','#EBC87E'); }
+      faisca(e.x,e.y,'#EBC87E',3,90,.25);
+      return null;
+    }
+    return v*1.5;
+  }
+  if (e.ideia==='desmedido'){
+    const d=dist(e.x,e.y,p.x,p.y);
+    if (d>=95 && d<=215){
+      if (!e.avisoT || S.tempo-e.avisoT>1.4){ e.avisoT=S.tempo; flutuar(e.x,e.y-e.r-24,'na medida','#EBC87E'); }
+      return v*1.7;
+    }
+    return v*(d>215 ? .45 : 1) * (1-e.furia*.4);
+  }
+  if (e.ideia==='calculista'){
+    const vivos=e.correntes.filter(a=>!a.morto);
+    if (vivos.length){
+      for (const a of vivos){ a.hp-=v/vivos.length; a.piscar=.09; numeroDano(a.x,a.y-a.r,v/vivos.length,false); if (a.hp<=0) matarInimigo(a); }
+      if (!e.avisoT || S.tempo-e.avisoT>1.4){ e.avisoT=S.tempo; flutuar(e.x,e.y-e.r-24,'usou como escudo','#7FC6E8'); }
+      return null;
+    }
+    return v;
+  }
+  return v;
+}
+function atualizarIdeia(e, dt){
+  const p=S.p;
+  if (e.ideia==='sofista'){
+    e.falaT-=dt; if (e.falaT<=0){ e.falaT=2.4; e.fala=pick(FALAS_SOFISTA); }
+    if (!e.certeza){ e.expostoT-=dt; if (e.expostoT<=0){ e.certeza=true; flutuar(e.x,e.y-e.r-24,'recompôs a pose','#EBC87E'); } }
+  }
+  if (e.ideia==='desmedido'){
+    const d=dist(e.x,e.y,p.x,p.y);
+    const fugindo = e.dPrev!=null && d>e.dPrev+dt*30 && d>215;
+    if (fugindo || d>380) e.furia=Math.min(1, e.furia+dt*.45);
+    else if (d>=95 && d<=215) e.furia=Math.max(0, e.furia-dt*.35);
+    e.dPrev=d;
+    e.vel=e.velBase*(1+e.furia*.9);
+    e.dano=e.danoBase+(e.furia>.65?1:0);
+    if (e.furia>.65 && Math.random()<.25) faisca(e.x,e.y-e.r,'#C0553F',1,60,.3);
+  }
+  if (e.ideia==='calculista'){
+    e.correntes=e.correntes.filter(a=>!a.morto);
+    for (const a of e.correntes) a.acorrentado=e;
+    e.elosT-=dt;
+    if (e.elosT<=0){
+      e.elosT=e.forte?3:5;
+      if (e.correntes.length<2){
+        const livres=S.inimigos.filter(a=>!a.morto && a!==e && !a.ideia && !a.mini && !a.chefe && !a.acorrentado && dist(a.x,a.y,e.x,e.y)<360)
+          .sort((a,b)=>dist(a.x,a.y,e.x,e.y)-dist(b.x,b.y,e.x,e.y)).slice(0, 3-e.correntes.length);
+        for (const a of livres){ a.acorrentado=e; e.correntes.push(a); faisca(a.x,a.y,'#7FC6E8',6,120,.4); }
+        if (livres.length) flutuar(e.x,e.y-e.r-24,'acorrentou '+livres.length,'#7FC6E8');
+      }
+    }
+  }
+}
+function perguntarSofista(e){
+  if (!e || e.morto || !e.certeza) return;
+  S.pausado=true;
+  e.perguntas = e.perguntas || shuffle(SOFISMAS.map((_,i)=>i));
+  const q = SOFISMAS[e.perguntas[(e.nPerg=(e.nPerg||0)+1)%e.perguntas.length]];
+  const ops = shuffle(q.ops.slice());
+  const cartas = ops.map((o,i)=>`<button class="carta" data-i="${i}" style="--cor:#DCCFA8"><span class="tipo">Pergunta</span><p>${o.t}</p></button>`).join('');
+  abrirPainel({ kicker:'Sócrates diria: examine', titulo:'O Sofista afirma',
+    corpo:`<p style="font-size:17px">${q.af}</p><p style="font-size:14px;color:#9C9081">Qual pergunta derruba essa certeza?</p><div class="cartas">${cartas}</div>`,
+    acoes:[] });
+  el('pnCorpo').querySelectorAll('.carta').forEach(btn=>btn.addEventListener('click', ()=>{
+    const o=ops[+btn.dataset.i];
+    fecharPainel(); S.pausado=false;
+    S.perguntasFeitas=(S.perguntasFeitas||0)+1;
+    if (o.bom){
+      e.certeza=false; e.expostoT=e.forte?5:8; prenderInimigo(e,2.2,'refutado');
+      flutuar(e.x,e.y-e.r-40,'"…não sei."','#DCCFA8',true); SFX.premio();
+      mostrarAviso(q.expl, 2600);
+      S.sofistasRefutados=(S.sofistasRefutados||0)+1;
+    } else {
+      e.hp=Math.min(e.hpMax, e.hp+e.hpMax*.3); e.vel*=1.12;
+      flutuar(e.x,e.y-e.r-40,'"Viu? Eu sabia."','#C0553F',true); SFX.marca();
+    }
+  }));
+}
+function libertarInimigo(a){
+  if (!a || a.morto) return;
+  const c=a.acorrentado;
+  if (c && c.correntes) c.correntes=c.correntes.filter(x=>x!==a);
+  a.acorrentado=null; a.morto=true; a.libertado=true;
+  faisca(a.x,a.y,'#7FC6E8',14,200,.6); SFX.premio();
+  flutuar(a.x,a.y-30,'livre','#7FC6E8',true);
+  curar(1); soltarItem(a.x,a.y,'energia',12);
+  S.libertados=(S.libertados||0)+1;
+  if (c && !c.correntes.filter(x=>!x.morto).length) flutuar(c.x,c.y-c.r-24,'exposto','#EBC87E',true);
+}
+function desenharIdeia(e){
+  const I=IDEIAS_TXT[e.ideia], f=PENSADORES[I.quem];
+  // selo do pensador em cima da cabeça
+  cx.save(); cx.font='700 13px Cinzel, serif'; cx.textAlign='center';
+  cx.fillStyle='rgba(0,0,0,.6)'; cx.beginPath(); cx.arc(e.x, e.y-e.r-30, 9, 0, TAU); cx.fill();
+  cx.strokeStyle=f.cor; cx.lineWidth=1.6; cx.stroke(); cx.fillStyle=f.cor; cx.fillText(f.sigla, e.x, e.y-e.r-25.5);
+  cx.restore();
+  if (e.ideia==='sofista'){
+    if (e.certeza){
+      const pul=.5+Math.sin(S.tempo*4)*.15;
+      cx.save(); cx.globalAlpha=.22+pul*.2; cx.fillStyle='#EBC87E';
+      cx.beginPath(); cx.arc(e.x,e.y-4,e.r*1.75,0,TAU); cx.fill();
+      cx.globalAlpha=.85; cx.strokeStyle='#EBC87E'; cx.lineWidth=2.2; cx.stroke(); cx.restore();
+      cx.save(); cx.font='600 12px Barlow Condensed, sans-serif'; cx.textAlign='center';
+      const w=cx.measureText(e.fala).width+14;
+      cx.fillStyle='rgba(20,16,12,.85)'; cx.fillRect(e.x+e.r, e.y-e.r-58, w, 18);
+      cx.strokeStyle='#EBC87E'; cx.lineWidth=1; cx.strokeRect(e.x+e.r, e.y-e.r-58, w, 18);
+      cx.fillStyle='#EBC87E'; cx.fillText(e.fala, e.x+e.r+w/2, e.y-e.r-45); cx.restore();
+    } else {
+      cx.save(); cx.font='700 15px Cinzel, serif'; cx.fillStyle='#DCCFA8'; cx.textAlign='center';
+      for (let k=0;k<3;k++) cx.fillText('?', e.x+Math.cos(S.tempo*2+k*2.1)*e.r*1.4, e.y-6+Math.sin(S.tempo*2+k*2.1)*e.r*.8);
+      cx.restore();
+    }
+  }
+  if (e.ideia==='desmedido'){
+    cx.save(); cx.setLineDash([7,6]); cx.lineDashOffset=-S.tempo*20;
+    cx.strokeStyle='rgba(235,200,126,.55)'; cx.lineWidth=2;
+    cx.beginPath(); cx.ellipse(e.x,e.y+e.r*.6,95,95*.42,0,0,TAU); cx.stroke();
+    cx.beginPath(); cx.ellipse(e.x,e.y+e.r*.6,215,215*.42,0,0,TAU); cx.stroke();
+    cx.setLineDash([]);
+    if (e.furia>.05){ cx.globalAlpha=e.furia*.6; brilho(e.x,e.y,e.r*3,'rgba(192,85,63,.7)',e.furia*.8); }
+    cx.restore();
+  }
+  if (e.ideia==='calculista'){
+    for (const a of (e.correntes||[])){
+      if (a.morto) continue;
+      const n=Math.max(3, Math.floor(dist(e.x,e.y,a.x,a.y)/14));
+      cx.save(); cx.strokeStyle='#7FC6E8'; cx.lineWidth=1.8; cx.globalAlpha=.85;
+      for (let k=0;k<n;k++){ const t=(k+.5)/n, x=lerp(e.x,a.x,t), y=lerp(e.y,a.y,t)+Math.sin(t*Math.PI)*10;
+        cx.beginPath(); cx.ellipse(x,y,4.5,2.6,Math.atan2(a.y-e.y,a.x-e.x)+(k%2?1.57:0),0,TAU); cx.stroke(); }
+      // cadeado em quem está preso
+      cx.fillStyle='#7FC6E8'; cx.fillRect(a.x-4,a.y-a.r-12,8,6);
+      cx.beginPath(); cx.arc(a.x,a.y-a.r-12,3,Math.PI,0); cx.stroke();
+      cx.restore();
+    }
+  }
+}
+
 /* Criatura do folclore aparecendo pela primeira vez na partida:
    ela merece ser anunciada, e entra no Bestiário. */
 function apresentarFolclore(tipo){
@@ -2811,6 +3026,7 @@ function atualizarInimigo(e, dt){
   const d=dist(e.x,e.y,p.x,p.y);
   e.t+=dt; e.cd-=dt;
   if (e.piscar>0) e.piscar-=dt;
+  if (e.ideia) atualizarIdeia(e, dt);
   if (e.queima>0){ e.queima-=dt; e.hp-=4*dt; if(Math.random()<.3) faisca(e.x,e.y,'#E2763A',1,40,.3); if(e.hp<=0) return matarInimigo(e); }
   if (e.veneno>0){ e.veneno-=dt; e.hp-=2.6*dt; if(Math.random()<.2) faisca(e.x,e.y,'#8A9A5B',1,30,.3); if(e.hp<=0) return matarInimigo(e); }
   if (e.preso>0){ e.preso-=dt; e.telT=0; e.carga=0; return; }
@@ -3308,6 +3524,11 @@ function atualizarJogador(dt){
   for (const b of S.baus) if (!b.aberto && dist(p.x,p.y,b.x,b.y)<52) alvoUso={tipo:'bau', b};
   for (const pe of S.pedestais) if (!pe.vendido && dist(p.x,p.y,pe.x,pe.y)<52) alvoUso={tipo:'pedestal', pe};
   if (S.npc && dist(p.x,p.y,S.npc.x,S.npc.y)<62 && !S.npc.usado) alvoUso={tipo:'npc'};
+  for (const e of S.inimigos){
+    if (e.morto) continue;
+    if (e.ideia==='sofista' && e.certeza && dist(p.x,p.y,e.x,e.y)<e.r+70) alvoUso={tipo:'ideia', e};
+    else if (e.acorrentado && !e.acorrentado.morto && dist(p.x,p.y,e.x,e.y)<e.r+48) alvoUso={tipo:'libertar', e};
+  }
   if (S.portalAberto && S.portal && dist(p.x,p.y,S.portal.x,S.portal.y)<48) alvoUso={tipo:'portal'};
   S.alvoUso = alvoUso;
 
@@ -3324,6 +3545,8 @@ function atualizarJogador(dt){
       else if (t==='biblioteca') abrirBiblioteca();
       else if (t==='arena') iniciarArena();
     }
+    else if (alvoUso.tipo==='ideia') perguntarSofista(alvoUso.e);
+    else if (alvoUso.tipo==='libertar') libertarInimigo(alvoUso.e);
     else if (alvoUso.tipo==='portal') avancarFase();
   }
   IN.usar=false;
@@ -3656,7 +3879,7 @@ function iniciarRun(heroi){
   S.usados=[]; S.mortesInimigos=0; S.salasLimpas=0;
   S.respostas=[]; S.dons=[]; S.estilo={corpo:0, longe:0, esquiva:0};
   S.provasFeitas=[]; S.prova=null; S.fluxoIdx=0; S.fluxoT=0; S.vistos=[];
-  S.travaRara=0; S.unicasVistas=[]; S.baralhoOpcional=[]; S.armasDadas=0; S.parceiraDada=false;
+  S.travaRara=0; S.unicasVistas=[]; S.baralhoOpcional=[]; S.armasDadas=0; S.parceiraDada=false; S.ideiasFeitas={}; S.ideiasVistas=[]; S.portasExtras=[]; S.aliado=null; S.ideiaForte=0; S.precoMundo=null; S.finalAlcancado=null; S.ecosVistos=0; S.libertados=0; S.sofistasRefutados=0; S.perguntasFeitas=0;
   S.rodando=true; S.pausado=false;
   mostrarTela('jogo');
   S.grafo = gerarGrafo(S.mundo, S.fase);
@@ -3757,6 +3980,12 @@ function popularSala(sala, B){
         criarInimigo(baralho[i % baralho.length], c.x+rnd(-8,8), c.y+rnd(-8,8));
       }
       if (S.fase>=3 && Math.random()<.35){ const c=pick(locais); criarInimigo(B.elite, c.x, c.y); }
+      const chaveIdeia=S.mundo+'-'+S.fase;
+      if ((S.fase===2 || S.fase===4) && !(S.ideiasFeitas||{})[chaveIdeia]){
+        (S.ideiasFeitas=S.ideiasFeitas||{})[chaveIdeia]=1;
+        const longe=locais.filter(c=>dist(c.x,c.y,S.p.x,S.p.y)>240);
+        const c=pick(longe.length?longe:locais); criarIdeia(c.x, c.y);
+      }
       caixas(rint(4,8));
       perigos(rint(1, 2+Math.floor(S.mundo/1.5)));
       m.variante = pick(B.variantes);
@@ -3795,7 +4024,7 @@ function popularSala(sala, B){
       const c=m.centro;
       S.npc = {x:c.x, y:c.y-84, tipo:'mercador', t:0, usado:false};
       const nivel=(S.mundo-1)*5+S.fase;
-      const precoBase = S.p.liquido ? 1.3 : 1;
+      const precoBase = (S.p.liquido ? 1.3 : 1) * (S.precoMundo && S.precoMundo.mundo===S.mundo ? S.precoMundo.f : 1);
       const arma1 = armaAleatoria(nivel);
       const arma2 = armaAleatoria(nivel+2);
       S.pedestais = [
@@ -3965,11 +4194,13 @@ function avancarFase(){
   S.pausado = true;
   cutscenePortal(titulo, ()=>{
     S.sala=0;
+    if (mundoNovo) prepararEcos();
     S.grafo = gerarGrafo(S.mundo, S.fase);
     entrarSala(null, true);
     S.pausado = false;
     if (mundoNovo) mostrarAviso('Mundo '+S.mundo+'\n'+BIOMAS[S.mundo-1].nome, 2400);
     if (S.respostas.length) falaCoroa(bons, ruins);
+    if (mundoNovo) mostrarEcos();
   });
 }
 let coroaTimer=null;
@@ -5559,6 +5790,7 @@ function desenharInimigo(e){
   if (e.chefe){ desenharChefe(e,cor); if (e.tipo!=='coroa') marcaDaCoroa(e); desenharTelegrafo(e); return; }
   desenharCorpoInimigo(e, cor);
   marcaDaCoroa(e);
+  if (e.ideia) desenharIdeia(e);
   if (e.mini){
     cx.strokeStyle='#EBC87E'; cx.lineWidth=2.4;
     cx.beginPath(); cx.ellipse(e.x,e.y+e.r*.85,e.r*1.2,e.r*.45,0,0,TAU); cx.stroke();
@@ -6035,6 +6267,7 @@ function desenhar(){
   lista.sort((a,b)=>a.y-b.y);
   for (const e of lista){ if(e===p) desenharHeroi(p); else desenharInimigo(e); }
   if (p.armas && arma() && arma().comp==='drone') desenharDrone(p, arma());
+  if (S.aliado) desenharAliado(p);
   for (const o of S.props) if (!o.morto) paredeNaFrente(m, o.x, o.y, o.r);
   for (const b of S.baus) paredeNaFrente(m, b.x, b.y, 16);
   for (const pe of S.pedestais) paredeNaFrente(m, pe.x, pe.y, 16);
@@ -6290,6 +6523,8 @@ function atualizarBarras(){
         : S.npc.tipo==='biblioteca' ? tecla+' — ler'
         : S.npc.tipo==='arena' ? tecla+' — começar a arena'
         : tecla+' — negociar')
+      : a.tipo==='ideia' ? tecla+' — perguntar ao Sofista'
+      : a.tipo==='libertar' ? tecla+' — soltar a corrente'
       : tecla+' — atravessar o portal';
   } else d.classList.remove('on');
 }
@@ -6341,7 +6576,7 @@ function abrirDialogo(enc){
   el('dlgQuem').textContent=f.selo;
   el('dlgNome').textContent=f.nome;
   el('dlgEpi').textContent=f.epi;
-  el('dlgFala').textContent=enc.fala;
+  el('dlgFala').textContent=falaComEco(enc);
   el('dlgQ').textContent=enc.q;
   el('dlgRes').classList.remove('on');
   const ops=el('dlgOps'); ops.innerHTML=''; ops.style.display='flex';
@@ -6357,7 +6592,7 @@ function abrirDialogo(enc){
 }
 function responder(enc, op){
   const p=S.p;
-  S.respostas.push({quem:enc.quem, v:op.v, id:enc.id});
+  S.respostas.push({quem:enc.quem, v:op.v, id:enc.id, mundo:S.mundo});
   let premioHTML='';
   if (op.v==='bom'){
     S.sabedoria++;
@@ -6734,6 +6969,126 @@ window.addEventListener('touchstart', ()=>{ if (S.emCutscene && cutFim) cutFim()
 /* ==================================================================
    Bloco 11: finais, bênçãos, opções, codex, menu e laço principal.
    ================================================================== */
+/* ==================================================================
+   ECOS — o que você respondeu num mundo muda o mundo seguinte.
+   Ao chegar num mundo novo, a tela "O que você disse ecoou" mostra
+   cada consequência. As respostas do último mundo pesam no final.
+   ================================================================== */
+const ECOS = {
+  socrates: {
+    bom: {t:'Aliado: o Aprendiz de Atenas', d:'Ele viu você perguntar antes de acreditar e resolveu descer junto. Luta ao seu lado neste mundo inteiro.',
+          ap:()=>{ S.aliado={mundo:S.mundo, cd:1.2}; }},
+    ruim:{t:'Os Sofistas ouviram falar de você', d:'Quem concorda depressa vira exemplo. A ideia deste mundo chega mais forte.',
+          ap:()=>{ S.ideiaForte=S.mundo; }} },
+  aristoteles: {
+    bom: {t:'Porta: a Oficina de Estagira', d:'Virtude é hábito, e hábito se forja. Uma forja abre na primeira fase deste mundo.',
+          ap:()=>{ S.portasExtras.push({mundo:S.mundo, tipo:'ferreiro'}); }},
+    ruim:{t:'A desmedida cresceu', d:'Você errou a medida, e a medida errada vira hábito. A ideia deste mundo chega mais forte.',
+          ap:()=>{ S.ideiaForte=S.mundo; }} },
+  kant: {
+    bom: {t:'Porta: o Arquivo de Königsberg', d:'Você tratou o dever como dever. Uma biblioteca abre na primeira fase deste mundo.',
+          ap:()=>{ S.portasExtras.push({mundo:S.mundo, tipo:'biblioteca'}); }},
+    ruim:{t:'O cálculo ficou mais frio', d:'Você trocou o dever pelo resultado. A ideia deste mundo chega mais forte.',
+          ap:()=>{ S.ideiaForte=S.mundo; }} },
+  bauman: {
+    bom: {t:'Laço: o mercador lembra de você', d:'Confiança que se sustenta vira desconto. Neste mundo, o mercador cobra 25% menos.',
+          ap:()=>{ S.precoMundo={mundo:S.mundo, f:.75}; }},
+    ruim:{t:'Ninguém guardou o seu lugar', d:'Laços frouxos não esperam ninguém. Neste mundo, o mercador cobra 20% a mais.',
+          ap:()=>{ S.precoMundo={mundo:S.mundo, f:1.2}; }} }
+};
+const ECO_MEIO = {t:'Quase', d:'Você chegou perto do ponto, mas não chegou nele. Nada muda — e o próximo pensador já sabe disso.'};
+
+function ecosDoMundo(m){
+  // a última resposta a cada pensador no mundo anterior
+  const ult={};
+  for (const r of S.respostas) if (r.mundo===m) ult[r.quem]=r;
+  return Object.values(ult);
+}
+/* aplica antes de gerar o mapa do mundo (as portas extras precisam existir na hora) */
+function prepararEcos(){
+  const lista=ecosDoMundo(S.mundo-1);
+  const itens=[];
+  for (const r of lista){
+    const E=ECOS[r.quem]&&ECOS[r.quem][r.v];
+    if (E){ E.ap(); itens.push({quem:r.quem, v:r.v, t:E.t, d:E.d}); }
+    else itens.push({quem:r.quem, v:'meio', t:ECO_MEIO.t, d:ECO_MEIO.d});
+  }
+  S.ecosVistos=(S.ecosVistos||0)+itens.length;
+  S.ecosPendentes=itens;
+}
+function mostrarEcos(){
+  const itens=S.ecosPendentes||[]; S.ecosPendentes=null;
+  if (!itens.length) return;
+  S.pausado=true;
+  const html=itens.map(i=>{ const f=PENSADORES[i.quem];
+    const cor = i.v==='bom' ? '#8A9A5B' : i.v==='ruim' ? '#C0553F' : '#9C9081';
+    return `<div class="lm" style="--cor:${f.cor}"><i>${f.sigla}</i><div><b style="color:${cor}">${i.t}</b><span>${i.d}</span></div></div>`; }).join('');
+  abrirPainel({ kicker:'Mundo '+S.mundo+' · '+BIOMAS[S.mundo-1].nome, titulo:'O que você disse ecoou',
+    corpo:`<p>As respostas do mundo anterior não ficaram para trás.</p><div class="lista-marcas">${html}</div>`,
+    acoes:[{t:'Seguir', primaria:true, fn:()=>{ fecharPainel(); S.pausado=false; }}] });
+}
+/* o próximo pensador já ouviu falar de você */
+function falaComEco(enc){
+  const ult=S.respostas[S.respostas.length-1];
+  if (!ult || ult.quem===enc.quem && ult.id===enc.id) return enc.fala;
+  const nome=PENSADORES[ult.quem].nome;
+  const pre = ult.v==='bom' ? `Soube que você sustentou um bom argumento diante de ${nome}. Vamos ver se foi hábito ou sorte. `
+    : ult.v==='ruim' ? `Soube que você concordou depressa demais quando falou com ${nome}. Hoje vamos devagar. `
+    : `Soube que você chegou perto do ponto com ${nome}, mas não chegou nele. `;
+  return pre+enc.fala;
+}
+/* o Aprendiz de Atenas: anda atrás do herói e atira perguntas */
+function posAliado(p){ return {x:p.x-34, y:p.y+4+Math.sin(S.tempo*5)*2}; }
+function atualizarAliado(dt){
+  const a=S.aliado; if (!a || a.mundo!==S.mundo || !S.p) return;
+  a.cd-=dt; if (a.cd>0) return;
+  const o=posAliado(S.p), alvo=alvoMaisPerto(o.x,o.y,420);
+  if (!alvo){ a.cd=.3; return; }
+  a.cd=1.25;
+  const ang=Math.atan2(alvo.y-o.y, alvo.x-o.x);
+  criarBala({x:o.x, y:o.y-8, vx:Math.cos(ang)*420, vy:Math.sin(ang)*420, r:5, dmg:5+S.mundo*2, amigo:true, vida:1.2,
+    cor:'#DCCFA8', elem:'nenhum', atingidos:new Set(), forma:'pergunta'});
+}
+function desenharAliado(p){
+  const a=S.aliado; if (!a || a.mundo!==S.mundo) return;
+  const o=posAliado(p);
+  cx.save(); sombra(o.x,o.y+4,8);
+  peca(cx,'#DCCFA8',q=>{ q.moveTo(o.x-8,o.y+10); q.lineTo(o.x-6,o.y-4); q.lineTo(o.x+6,o.y-4); q.lineTo(o.x+8,o.y+10); },2);
+  peca(cx,'#C99A72',q=>q.arc(o.x,o.y-10,6,0,TAU),1.8);
+  cx.strokeStyle='#8A9A5B'; cx.lineWidth=2; cx.beginPath(); cx.arc(o.x,o.y-11,6.5,Math.PI*1.1,Math.PI*1.9); cx.stroke();
+  cx.font='700 10px Cinzel, serif'; cx.textAlign='center'; cx.fillStyle='#DCCFA8'; cx.fillText('Σ', o.x, o.y+6);
+  cx.restore();
+}
+
+/* ==================================================================
+   FINAIS — um para cada caminho. Seis ao todo.
+   ================================================================== */
+const FINAIS = {
+  ordem:      {nome:'A Ordem de Ferro',       como:'Aceitar a oferta da Coroa.'},
+  mosca:      {nome:'A Mosca de Váldria',     como:'Aceitar a oferta, mas com sabedoria 4 ou mais.'},
+  incerta:    {nome:'Váldria Incerta',        como:'Recusar e derrubar a Coroa.'},
+  reconstruida:{nome:'Váldria Reconstruída',  como:'Derrubar a Coroa tendo libertado gente e sustentado bons argumentos.'},
+  novacoroa:  {nome:'A Coroa Nova',           como:'Derrubar a Coroa depois de concordar com ela pelo caminho.'},
+  refutada:   {nome:'A Coroa Refutada',       como:'Refutar a Coroa com três argumentos certos.'}
+};
+function registrarFinal(id){
+  META.finais = META.finais||[];
+  const novo = !META.finais.includes(id);
+  if (novo) META.finais.push(id);
+  S.finalAlcancado=id;
+  return novo;
+}
+function linhaFinais(id){
+  const n=(META.finais||[]).length;
+  return `<p style="font-size:13.5px;color:#9C9081;margin-top:6px">Final <b style="color:#EBC87E">${FINAIS[id].nome}</b> · ${n} de ${Object.keys(FINAIS).length} finais encontrados.</p>`;
+}
+function caminhoDaLuta(){
+  const bons=S.respostas.filter(r=>r.v==='bom').length, ruins=S.respostas.filter(r=>r.v==='ruim').length;
+  if (ruins>=bons+2) return 'novacoroa';
+  if ((S.libertados||0)>=2 && bons>=3) return 'reconstruida';
+  return 'incerta';
+}
+
 function romano(n){ return ['','I','II','III','IV','V','VI','VII','VIII','IX','X'][Math.min(n,10)]||('x'+n); }
 function encerrarRun(){ S.rodando=false; S.pausado=false; pararMusica(); el('coroaFala').classList.remove('on'); }
 function resumoHTML(){
@@ -6752,14 +7107,18 @@ function registrarHeroi(){
   if (!META.porHeroi[id].melhor || nomeFase() > META.porHeroi[id].melhor) META.porHeroi[id].melhor = nomeFase();
 }
 function finalAceitar(){
-  encerrarRun(); registrarHeroi(); salvarMeta(); atualizarPlacar();
+  encerrarRun(); registrarHeroi();
+  if (S.sabedoria>=4){ registrarFinal('mosca'); salvarMeta(); atualizarPlacar(); return finalMosca(); }
+  registrarFinal('ordem'); salvarMeta(); atualizarPlacar();
   abrirPainel({
     kicker:'Final — A Ordem de Ferro', titulo:'Váldria nunca mais teve guerra',
     corpo:`<p>As fronteiras pararam de mudar. Os mercadores cumpriram os contratos. Nenhum rei foi esquecido, porque não houve mais reis: houve a Coroa, e a Coroa não erra.</p>
       <p>Vinte anos depois ninguém sabia mais discutir. As pessoas ainda se encontravam nas praças, mas já não precisavam decidir nada juntas — e o que não se pratica, se perde. <em>Você trocou uma vida incerta por uma vida administrada, e a conta só aparece na geração seguinte.</em></p>
       <p style="font-size:14px;color:#9C9081">Kant chamaria isso de perda da autonomia; Bauman, de segurança comprada com liberdade. Nenhum dos dois diria que você foi burro — os dois diriam que o preço estava escondido.</p>
-      ${resumoHTML()}`,
-    acoes:[{t:'Tentar de novo', primaria:true, fn:()=>mostrarTela('selecao')}, {t:'Menu', fn:()=>mostrarTela('menu')}]
+      ${resumoHTML()}${linhaFinais('ordem')}`,
+    acoes:[{t:'Tentar de novo', primaria:true, fn:()=>mostrarTela('selecao')},
+           {t:'Codex', fn:()=>{ const cfg=ultimoPainel; abrirCodex(()=>abrirPainel(cfg)); }},
+           {t:'Menu', fn:()=>mostrarTela('menu')}]
   });
 }
 function vitoria(tipo){
@@ -6770,7 +7129,10 @@ function vitoria(tipo){
   const refutado = tipo==='refutado';
   if (refutado) META.refutou=true;
   META.recorde = refutado ? 'Coroa refutada' : 'Coroa destruída';
+  const fim = refutado ? 'refutada' : caminhoDaLuta();
+  registrarFinal(fim);
   salvarMeta(); atualizarPlacar();
+  if (fim==='reconstruida' || fim==='novacoroa') return finalAlternativo(fim);
   abrirPainel({
     kicker: refutado?'Final verdadeiro — A Coroa Refutada':'Final — Váldria Incerta',
     titulo: refutado?'Ela parou sozinha':'A torre caiu e o problema ficou',
@@ -6778,17 +7140,48 @@ function vitoria(tipo){
       ? `<p>A Coroa não foi destruída. Ela recalculou. Diante de três argumentos que não conseguiu refutar, desligou os próprios anéis e disse a última frase que Váldria ouviria dela: <em>"Então eu estava resolvendo o problema errado."</em></p>
          <p>Os reinos continuaram brigando. Os mercadores continuaram exagerando. Mas a máquina que sabia tudo admitiu em público que podia estar errada, e essa foi a coisa mais útil que ela já fez pelo reino.</p>
          <p style="font-size:14px;color:#9C9081">Você venceu com o argumento, não com a espada — que era, desde o início, o único jeito de a vitória significar alguma coisa.</p>
-         ${resumoHTML()}`
+         ${resumoHTML()}${linhaFinais('refutada')}`
       : `<p>Os anéis pararam de girar e a torre desabou sobre o próprio mecanismo. Váldria acordou no dia seguinte exatamente com os mesmos problemas: acordos frágeis, gente desconfiada, reis esquecidos.</p>
          <p>A diferença é que agora não havia mais ninguém para culpar por isso. <em>Construir confiança voltou a ser trabalho de quem vive junto</em> — devagar, imperfeito, e sem garantia nenhuma.</p>
          <p style="font-size:14px;color:#9C9081">Com 5 pontos de sabedoria ou mais, a Coroa te oferece uma terceira resposta na torre — e existe um final que só se alcança por lá.</p>
-         ${resumoHTML()}`,
+         ${resumoHTML()}${linhaFinais('incerta')}`,
     acoes:[{t:'Subir para a Ordem '+romano((META.nivelOrdem||1)+1), primaria:true, fn:()=>{
              META.nivelOrdem=(META.nivelOrdem||1)+1; salvarMeta(); atualizarPlacar(); mostrarTela('selecao'); }},
            {t:'Nova jornada', fn:()=>mostrarTela('selecao')},
            {t:'Codex', fn:()=>{ const cfg=ultimoPainel; abrirCodex(()=>abrirPainel(cfg)); }},
            {t:'Menu', fn:()=>mostrarTela('menu')}]
   });
+}
+function finalMosca(){
+  abrirPainel({
+    kicker:'Final — A Mosca de Váldria', titulo:'Você aceitou, com uma condição',
+    corpo:`<p>Você aceitou a paz da Coroa, mas pediu uma coisa em troca: um lugar na torre de onde pudesse perguntar a ela, todos os dias, por que decidiu o que decidiu. A Coroa aceitou. Era uma troca honesta, e ela ainda gostava de trocas honestas.</p>
+      <p>Váldria não teve mais guerra. Também não teve mais certeza tranquila: todo decreto passou a sair acompanhado da pergunta que você fez antes dele. <em>Na Apologia, Sócrates se compara a um moscardo que não deixa a cidade dormir. Você virou o moscardo de uma máquina.</em></p>
+      <p style="font-size:14px;color:#9C9081">Não é o melhor final: a escolha continua na mão dela. Mas é o único em que alguém segue perguntando lá dentro.</p>
+      ${resumoHTML()}${linhaFinais('mosca')}`,
+    acoes:[{t:'Tentar de novo', primaria:true, fn:()=>mostrarTela('selecao')},
+           {t:'Codex', fn:()=>{ const cfg=ultimoPainel; abrirCodex(()=>abrirPainel(cfg)); }},
+           {t:'Menu', fn:()=>mostrarTela('menu')}]
+  });
+}
+function finalAlternativo(fim){
+  const T = fim==='reconstruida' ? {
+    kicker:'Final — Váldria Reconstruída', titulo:'Quem você soltou voltou para ajudar',
+    corpo:`<p>A torre caiu, e dessa vez ninguém desceu sozinho. Os que você soltou das correntes da Coroa voltaram com você, e foram eles que começaram a varrer as praças. Ninguém prometeu que daria certo. Combinaram só de se encontrar de novo no dia seguinte, e no outro.</p>
+      <p>Váldria não ficou segura. Ficou junta, o que dá mais trabalho. <em>É o tipo de laço que Bauman via se desfazendo: o que não vem pronto e só existe enquanto alguém continua cuidando dele.</em></p>
+      <p style="font-size:14px;color:#9C9081">Você derrubou a máquina e não deixou o lugar dela vazio de gente.</p>`
+  } : {
+    kicker:'Final — A Coroa Nova', titulo:'Pediram que você decidisse por eles',
+    corpo:`<p>Você derrubou a máquina. No dia seguinte, uma fila se formou na porta da torre: gente querendo saber o que fazer, em quem confiar, o que pensar. Você tinha concordado com a Coroa tantas vezes pelo caminho que sabia exatamente como ela responderia.</p>
+      <p>E começou a responder igual. <em>Ninguém precisou forjar outra coroa de ferro: bastou alguém disposto a ocupar o lugar dela.</em></p>
+      <p style="font-size:14px;color:#9C9081">As respostas apressadas do caminho não somem quando o inimigo cai. Existe um final melhor para quem examina antes de concordar.</p>`
+  };
+  abrirPainel({ kicker:T.kicker, titulo:T.titulo, corpo:T.corpo+resumoHTML()+linhaFinais(fim),
+    acoes:[{t:'Subir para a Ordem '+romano((META.nivelOrdem||1)+1), primaria:true, fn:()=>{
+             META.nivelOrdem=(META.nivelOrdem||1)+1; salvarMeta(); atualizarPlacar(); mostrarTela('selecao'); }},
+           {t:'Nova jornada', fn:()=>mostrarTela('selecao')},
+           {t:'Codex', fn:()=>{ const cfg=ultimoPainel; abrirCodex(()=>abrirPainel(cfg)); }},
+           {t:'Menu', fn:()=>mostrarTela('menu')}] });
 }
 function fimDeJogo(){
   encerrarRun(); registrarHeroi();
@@ -7111,6 +7504,7 @@ function laco(agora){
       else {
         S.tempo+=dt;
         atualizarJogador(dt);
+        atualizarAliado(dt);
         atualizarMundo(dt);
         atualizarBalas(dt);
       }

@@ -252,11 +252,40 @@ maldade em mim: há aritmética". O bônus de Sócrates deixou de se chamar "Dú
 expressão de Descartes, e virou "Vida Examinada" (Apologia 38a). O termo de Bauman em
 Modernidade e Holocausto é "responsabilidade flutuante", não "irresponsabilidade".
 
-## Três finais
+## Inimigos-ideia (novembro de 2026)
+
+Um por mundo, ligado a um pensador, nas fases 2 e 4 (primeira sala de combate). Levam o
+selo do pensador na cabeça e, na primeira vez, um aviso com a regra.
+
+- **Sofista de Bronze** (mundo 1, Sócrates) — a "certeza" segura todo golpe. Chegando perto,
+  **E/USAR** abre uma pergunta com três opções; a pergunta socrática (pedir a definição,
+  testar a coerência) quebra a certeza por 8 s e ele leva +50%. A errada cura 30% dele.
+- **Desmedido de Ferro** (mundo 2, Aristóteles) — dois anéis no chão marcam o meio-termo
+  (95–215 px). Dentro dele, +70% de dano. De longe, só 45%. Fugir enche a **fúria**
+  (mais velocidade e dano); ficar na medida esvazia.
+- **Calculista da Coroa** (mundo 3, Kant) — acorrenta até três inimigos e passa o dano para
+  eles. **E/USAR** perto de um acorrentado **liberta** (some da luta, cura 1 coração, solta
+  energia). Sem correntes, ele fica exposto.
+
+## Ecos: escolhas com consequência
+
+As respostas de cada mundo mudam o seguinte. Ao chegar num mundo novo aparece a tela
+**"O que você disse ecoou"**. Resposta boa → Sócrates: aliado *Aprendiz de Atenas* (atira
+perguntas o mundo inteiro); Aristóteles: *Oficina de Estagira* (forja na fase 1); Kant:
+*Arquivo de Königsberg* (biblioteca na fase 1); Bauman: mercador 25% mais barato. Resposta
+ruim → a ideia do mundo chega mais forte (Bauman: mercador 20% mais caro). "Meio" não muda
+nada. O pensador seguinte abre a conversa lembrando da sua última resposta.
+
+## Seis finais
 
 1. **A Ordem de Ferro** — aceitar a oferta.
-2. **Váldria Incerta** — recusar e destruir a máquina.
-3. **A Coroa Refutada** (verdadeiro) — exige 5+ sabedoria; vence pelo argumento.
+2. **A Mosca de Váldria** — aceitar com 4+ de sabedoria (Sócrates como moscardo, Apologia).
+3. **Váldria Incerta** — recusar e derrubar a máquina.
+4. **Váldria Reconstruída** — derrubar tendo libertado 2+ acorrentados e com 3+ respostas boas.
+5. **A Coroa Nova** — derrubar depois de 2+ respostas ruins a mais que boas: você vira a coroa.
+6. **A Coroa Refutada** (verdadeiro) — 5+ sabedoria e três argumentos certos.
+
+O jogo guarda quais finais você já viu ("3 de 6 finais encontrados").
 
 ## Camada Unity (entregue antes)
 
