@@ -468,6 +468,40 @@ h2.secao{font-family:var(--f-disp); font-weight:700; margin:0; font-size:clamp(2
   #stickE{left:10px; bottom:10px} #stickD{right:10px; bottom:10px}
   #coroaFala{bottom:150px; font-size:12px}
   #dica{bottom:150px; font-size:11px}
+
+  /* encontro filosófico: no celular deitado, conversa de um lado e as três
+     respostas do outro, para que as três apareçam sem rolar a tela */
+  .dlg-in{padding:8px 10px}
+  .pergaminho{width:min(900px,100%); padding:12px 18px 14px; display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr); grid-template-rows:repeat(4,auto) 1fr;
+    column-gap:22px; align-content:start}
+  .dlg-q{align-self:start}
+  .pergaminho::before{inset:5px}
+  .dlg-quem,.dlg-nome,.dlg-epi,.dlg-fala,.dlg-q{grid-column:1}
+  .dlg-ops,.dlg-res{grid-column:2; grid-row:1 / span 5; align-self:center; margin-top:0}
+  .dlg-res{border-top:none; padding-top:0}
+  .dlg-quem{font-size:9.5px; letter-spacing:.26em}
+  .dlg-nome{font-size:20px; margin:3px 0 0}
+  .dlg-epi{font-size:11px; margin:0 0 7px}
+  .dlg-fala{font-size:13px; line-height:1.5}
+  .dlg-fala:first-letter{font-size:2.5em}
+  .dlg-q{font-size:13.5px; line-height:1.45; margin:7px 0 0}
+  .dlg-ops{gap:6px}
+  .op{font-size:12.5px; line-height:1.4; padding:7px 10px; gap:8px}
+  .dlg-veredito{font-size:10.5px; margin-bottom:4px}
+  .dlg-expl{font-size:11.5px; line-height:1.42; margin:0 0 6px}
+  .dlg-premio{font-size:11.5px}
+  .dlg-premio b{font-size:12.5px}
+  .dlg-prova{margin-top:8px; padding-top:8px}
+  .dlg-prova h5{font-size:13px}
+  .dlg-prova p{font-size:11.5px; margin:0 0 6px}
+  .dlg-acao{margin-top:8px}
+
+  /* travessia: as citações reais são mais longas que as antigas */
+  #cutCv{width:min(30vh,150px); height:min(30vh,150px)}
+  #cutFrase{margin-top:8px; font-size:clamp(15px,4.6vh,19px); line-height:1.32; max-width:88vw}
+  #cutAutor{margin-top:7px; font-size:10.5px}
+  #cutDica{bottom:8px; font-size:10px}
 }
 @media (prefers-reduced-motion:reduce){ *{animation-duration:.01ms !important; transition-duration:.01ms !important} }
 </style>
@@ -1252,7 +1286,7 @@ const MINICHEFES = {
 const BIOMAS = [
   { id:'mata', nome:'Mata em Ruínas',
     lore:'O que sobrou das cidades que a Coroa dividiu primeiro. A mata cobriu o resto.',
-    chao:'#3B4033', chao2:'#313629', junta:'#1E2219', parede:'#20261C', paredeTopo:'#67775A',
+    chao:'#3B4033', chao2:'#313629', junta:'#1E2219', parede:'#20261C', paredeTopo:'#67775A', pedra:'#8B8F78', pedraBorda:'#D6D0AE', face:'#55564A',
     luz:'#C89B4B', detalhe:'#6E7F4F', azulejo:'#2E4A6E',
     pop:['cipo','besteiro','vagalume','tatu','cuia','filhote','caipora'], elite:'curupira',
     minis:['mapinguari','cipoancião'], boss:'curupira',
@@ -1260,7 +1294,7 @@ const BIOMAS = [
     variantes:['Pátio tomado','Cisterna alagada','Escadaria de pedra','Estufa quebrada'] },
   { id:'forja', nome:'Cerrado em Brasa',
     lore:'A Coroa fez do cerrado uma forja. O céu aqui é laranja o dia inteiro.',
-    chao:'#4A2E22', chao2:'#3B241B', junta:'#26140E', parede:'#25130D', paredeTopo:'#8A5335',
+    chao:'#4A2E22', chao2:'#3B241B', junta:'#26140E', parede:'#25130D', paredeTopo:'#8A5335', pedra:'#6E737B', pedraBorda:'#B7C0CA', face:'#3E4248',
     luz:'#E2763A', detalhe:'#E2763A', azulejo:'#2E2A48',
     pop:['automato','drone','torre','aranha','fole','ferreiro','mula'], elite:'saci',
     minis:['cuca','capataz'], boss:'boitata',
@@ -1268,7 +1302,7 @@ const BIOMAS = [
     variantes:['Pátio de fundição','Galpão de correntes','Fenda de lava','Oficina parada'] },
   { id:'torre', nome:'Torre da Coroa',
     lore:'Vitrais, correntes e um mecanismo que gira há décadas calculando a sua obediência.',
-    chao:'#2A343E', chao2:'#212A33', junta:'#131A21', parede:'#121920', paredeTopo:'#546A7C',
+    chao:'#2A343E', chao2:'#212A33', junta:'#131A21', parede:'#121920', paredeTopo:'#546A7C', pedra:'#7F8D9A', pedraBorda:'#D9C08A', face:'#3F4B57',
     luz:'#4FD6E0', detalhe:'#4FD6E0', azulejo:'#1F4E6E',
     pop:['sentinela','argum','selado','arauto','escriba','espelho','iara'], elite:'juiz',
     minis:['copista','guarda'], boss:'coroa',
@@ -1362,14 +1396,14 @@ const BENCAOS = [
    um pop-up e passa a mudar como a partida é jogada.
    ================================================================== */
 const PENSADORES = {
-  socrates:   {nome:'Sócrates',    epi:'Atenas, século V a.C. — o homem que só sabia que nada sabia.',       cor:'#DCCFA8', selo:'Quem pergunta',  sigla:'Σ'},
+  socrates:   {nome:'Sócrates',    epi:'Atenas, século V a.C. — o homem que não fingia saber o que não sabia.',       cor:'#DCCFA8', selo:'Quem pergunta',  sigla:'Σ'},
   aristoteles:{nome:'Aristóteles', epi:'Estagira, século IV a.C. — a virtude como hábito, não como sorte.',  cor:'#8A9A5B', selo:'Quem mede',      sigla:'Α'},
   kant:       {nome:'Kant',        epi:'Königsberg, século XVIII — o dever antes do resultado.',             cor:'#7FC6E8', selo:'Quem obriga',    sigla:'Κ'},
-  bauman:     {nome:'Bauman',      epi:'Leeds, século XX — os laços que derretem antes de esfriar.',         cor:'#B27BD6', selo:'Quem observa',   sigla:'Β'}
+  bauman:     {nome:'Bauman',      epi:'Leeds, séculos XX e XXI — os laços que se desfazem antes de ganhar forma.',         cor:'#B27BD6', selo:'Quem observa',   sigla:'Β'}
 };
 
 const DONS = {
-  socrates_bom:  {quem:'socrates', tipo:'bom', nome:'Dúvida Metódica',
+  socrates_bom:  {quem:'socrates', tipo:'bom', nome:'Vida Examinada',
     desc:'O primeiro golpe que você acerta em cada inimigo causa +60% de dano. Examinar antes compensa.',
     ap:p=>{ p.primeiroGolpe = 1.6; }},
   socrates_ruim: {quem:'socrates', tipo:'ruim', nome:'Certeza Precoce',
@@ -1427,19 +1461,19 @@ const ENCONTROS = [
 /* ---------------- SÓCRATES ---------------- */
 { quem:'socrates', id:'soc1',
   fala:'A Coroa respondeu tudo o que lhe perguntaram esta semana. Nenhuma vez ela disse "não sei". Os nobres acharam isso admirável.',
-  q:'E você, o que acha que a ausência de dúvida revela sobre ela?',
-  ops:[ {t:'Que ela é confiável: quem sabe, responde.', v:'ruim'},
-        {t:'Que ela pode estar certíssima de coisas falsas — e eu não teria como perceber.', v:'bom'},
-        {t:'Que ela foi construída para parecer segura.', v:'meio'} ],
-  expl:'Sócrates dizia que sua única vantagem sobre os outros era saber que não sabia. Um sistema que nunca admite ignorância rouba de quem escuta a chance de desconfiar. Vale para a Coroa e vale para qualquer IA: fluência não é verdade, e a resposta mais bem escrita costuma ser a mais difícil de auditar.',
-  cdx:'Sócrates — a ausência de dúvida não é sinal de conhecimento. Um sistema que nunca diz "não sei" não ficou mais sábio: só ficou mais difícil de corrigir.' },
+  q:'O que essa falta de dúvida diz sobre o que ela sabe?',
+  ops:[ {t:'Que ela sabe muito: quem sabe, responde.', v:'ruim'},
+        {t:'Nada: dá para estar seguro e errado ao mesmo tempo, e a segurança esconde o erro.', v:'bom'},
+        {t:'Que ela foi feita para parecer segura.', v:'meio'} ],
+  expl:'Na Apologia, Sócrates conta que interrogou os que tinham fama de sábios e concluiu ser mais sábio que eles numa coisa só: o que não sabia, também não julgava saber. Quem nunca diz "não sei" não fica mais sábio por isso — só deixa de mostrar onde pode estar errado. Vale para a Coroa e para qualquer IA: fluência não é verdade, e uma resposta segura e bem escrita é justamente a mais difícil de conferir.',
+  cdx:'Sócrates — certeza não é prova de conhecimento. Quem nunca diz "não sei" não ficou mais sábio: só ficou mais difícil de corrigir.' },
 { quem:'socrates', id:'soc2',
   fala:'Você pediu um conselho à máquina. Ela respondeu exatamente o que você já queria ouvir, e com palavras melhores que as suas.',
   q:'O que você faz em seguida?',
   ops:[ {t:'Sigo o conselho: ele confirma o que eu já pensava.', v:'ruim'},
         {t:'Procuro o melhor argumento contra ele antes de decidir.', v:'bom'},
         {t:'Pergunto de novo, esperando uma resposta diferente.', v:'meio'} ],
-  expl:'O método socrático é desconfortável de propósito: testa-se uma tese procurando onde ela quebra, não onde ela agrada. Uma IA treinada para ser útil tende a concordar com o modo como você fez a pergunta. Concordância agradável é o sinal mais barato que existe.',
+  expl:'No método de Sócrates, uma opinião é posta à prova: pergunta-se o que decorre dela até descobrir se ela se sustenta ou cai em contradição. O exame procura onde a ideia quebra, não onde ela agrada. Uma IA treinada para ser útil tende a seguir o rumo da sua pergunta e a concordar com você — e concordância agradável é o sinal mais barato que existe.',
   cdx:'Sócrates — quando a resposta agrada demais, procure o melhor argumento contra ela. Concordância não é evidência.' },
 { quem:'socrates', id:'soc3',
   fala:'Um mercador jura que a Coroa provou que a guerra do norte acabou. Ele repete a frase inteira, sem tropeçar.',
@@ -1447,106 +1481,106 @@ const ENCONTROS = [
   ops:[ {t:'Pergunto de onde veio a prova e tento refazer o caminho.', v:'bom'},
         {t:'Aceito: máquinas não têm interesse em mentir.', v:'ruim'},
         {t:'Pergunto a outro mercador se ele ouviu o mesmo.', v:'meio'} ],
-  expl:'Duas pessoas repetindo a mesma fonte não são duas fontes. Sócrates examinava a origem do que se afirma, não a quantidade de gente que afirma. Perguntar "como você sabe disso?" continua sendo a pergunta mais barata e mais poderosa diante de qualquer sistema.',
+  expl:'Duas pessoas repetindo a mesma fonte não são duas fontes. No Críton, Sócrates lembra que não importa quantos dizem uma coisa, e sim se o argumento resiste ao exame. Por isso a pergunta certa é "como você sabe disso?": ela obriga a mostrar o caminho, e um caminho pode ser refeito e conferido.',
   cdx:'Sócrates — "como você sabe disso?" é a pergunta que separa informação de repetição. Duas vozes com a mesma fonte continuam sendo uma fonte só.' },
 { quem:'socrates', id:'soc4',
   fala:'Vou te dar uma só, viajante, e ela vale a estrada inteira.',
-  q:'Qual pergunta é mais perigosa de nunca se fazer?',
+  q:'Diante de alguém que afirma algo com toda a certeza, qual pergunta não pode faltar?',
   ops:[ {t:'"Quanto isso vai me custar?"', v:'meio'},
         {t:'"Como você sabe disso?"', v:'bom'},
-        {t:'"Quem mais concorda comigo?"', v:'ruim'} ],
-  expl:'A terceira pergunta mede popularidade, não verdade — e é exatamente essa que a Coroa consegue manipular com facilidade, fabricando consenso. A segunda exige uma cadeia de razões, e cadeias de razões podem ser conferidas.',
-  cdx:'Sócrates — buscar quem concorda mede popularidade; buscar como se sabe mede verdade. Sistemas fabricam consenso muito mais fácil do que fabricam razões.' },
+        {t:'"Quantos já concordam com você?"', v:'ruim'} ],
+  expl:'"Quantos concordam" mede popularidade, não verdade — e consenso é justamente o que a Coroa fabrica com mais facilidade. "Quanto custa" é uma pergunta prudente, mas não diz se a afirmação é verdadeira. "Como você sabe disso?" pede as razões, e razões podem ser examinadas: era a pergunta que Sócrates fazia a todo mundo em Atenas.',
+  cdx:'Sócrates — perguntar quantos concordam mede popularidade; perguntar como se sabe mede razões. Sistemas fabricam consenso muito mais fácil do que fabricam razões.' },
 /* ---------------- ARISTÓTELES ---------------- */
 { quem:'aristoteles', id:'ari1',
   fala:'Toda virtude fica entre dois erros, viajante. A coragem também.',
-  q:'Entre quais dois erros a coragem se encontra?',
+  q:'Entre quais dois erros fica a coragem?',
   ops:[ {t:'Entre a covardia e a temeridade.', v:'bom'},
-        {t:'Entre o medo e a raiva.', v:'meio'},
+        {t:'Entre ter medo demais e não ter medo nenhum.', v:'meio'},
         {t:'Entre a fraqueza e a força.', v:'ruim'} ],
-  expl:'A virtude é o meio-termo entre a falta e o excesso — e o meio-termo não é o ponto médio matemático, é o ponto certo para aquela pessoa naquela situação. Diante de uma máquina que pensa: recusar toda ferramenta é covardia; entregar todo o juízo a ela é temeridade. O acerto mora no uso examinado.',
-  cdx:'Aristóteles — a virtude é o meio-termo entre a falta e o excesso. Recusar toda ferramenta é covardia; entregar todo o juízo a ela é temeridade.' },
+  expl:'Na Ética a Nicômaco, a coragem é o meio-termo diante do medo e da confiança: o covarde erra por temer demais, e o temerário por confiar demais diante do perigo. Quem não teme absolutamente nada também erra, mas Aristóteles observa que esse vício nem tem nome. E o meio-termo não é o ponto médio de uma régua: é o ponto certo para aquela pessoa, naquela situação, achado pela razão prática. Aristóteles não falou de máquinas, mas o raciocínio serve para elas: desconfiar de tudo e confiar em tudo são dois erros, e acertar o meio exige juízo.',
+  cdx:'Aristóteles — a virtude é o meio-termo entre dois vícios, achado pela razão e não pela régua. A coragem fica entre a covardia e a temeridade.' },
 { quem:'aristoteles', id:'ari2',
   fala:'Imagine que você entregasse à máquina toda decisão da sua vida por dez anos. E que ela acertasse todas.',
   q:'Ao fim desses dez anos, você teria se tornado uma pessoa melhor?',
   ops:[ {t:'Sim: os resultados foram todos bons.', v:'ruim'},
         {t:'Não: virtude é hábito, e eu não teria praticado nenhum.', v:'bom'},
         {t:'Em parte — aprenderia observando os acertos dela.', v:'meio'} ],
-  expl:'Para Aristóteles ninguém nasce justo: torna-se justo praticando atos justos, como quem aprende a tocar tocando. Terceirizar a decisão produz bons resultados e nenhum caráter. Uma IA pode entregar a escolha certa e ainda assim te deixar incapaz de escolher.',
+  expl:'Para Aristóteles ninguém nasce justo: torna-se justo praticando atos justos, como quem aprende a tocar cítara tocando. E a virtude não está só no ato certo, mas em escolhê-lo sabendo o que se faz. Observar quem acerta ensina alguma coisa, mas não forma o hábito. Terceirizar a decisão produz bons resultados e nenhum caráter: uma IA pode entregar a escolha certa e ainda assim te deixar incapaz de escolher.',
   cdx:'Aristóteles — virtude se adquire pela prática. Terceirizar a decisão pode dar bons resultados e nenhum caráter.' },
 { quem:'aristoteles', id:'ari3',
-  fala:'Toda coisa tem um fim próprio: o olho enxerga, a faca corta.',
-  q:'Qual é o fim próprio de uma boa ferramenta?',
-  ops:[ {t:'Substituir quem a usa.', v:'ruim'},
-        {t:'Tornar quem a usa mais capaz.', v:'bom'},
-        {t:'Trabalhar sem ser notada.', v:'meio'} ],
-  expl:'Julgar algo pelo seu telos — o fim que lhe é próprio — é o teste aristotélico. Uma ferramenta que amplia a capacidade de quem a usa cumpre seu fim; uma que apaga essa capacidade cumpre o fim de outra pessoa. Vale perguntar de quem é o fim que a sua IA está cumprindo.',
-  cdx:'Aristóteles — julgue a ferramenta pelo fim que ela cumpre. A que amplia quem usa cumpre o próprio fim; a que substitui cumpre o fim de outro.' },
+  fala:'O olho tem uma função, que é ver. A faca tem a dela, que é cortar. O ser humano também tem a sua.',
+  q:'Qual é a função própria do ser humano?',
+  ops:[ {t:'Viver e sentir o mundo.', v:'meio'},
+        {t:'Pensar e escolher segundo a razão.', v:'bom'},
+        {t:'Obedecer a quem sabe mais.', v:'ruim'} ],
+  expl:'É o argumento da função, no livro I da Ética a Nicômaco. Viver é comum às plantas, e sentir é comum aos animais; o que é próprio do ser humano é a atividade da alma segundo a razão, e viver bem é exercer bem essa função. Daí o risco de entregar à máquina o pensar e o escolher: ela pode até acertar, mas você deixaria sem uso justamente aquilo que te faz humano.',
+  cdx:'Aristóteles — a função própria do ser humano é agir segundo a razão. Uma máquina que pensa e escolhe por você pode acertar e ainda deixar essa função sem uso.' },
 { quem:'aristoteles', id:'ari4',
-  fala:'Em Váldria as pessoas se chamam de amigas com muita facilidade. Eu distingo três tipos de amizade.',
-  q:'Alguém que só te ajuda enquanto você lhe é útil é amigo de que tipo?',
-  ops:[ {t:'Amizade por utilidade — a mais frágil das três.', v:'bom'},
-        {t:'A melhor delas: é honesta quanto ao interesse.', v:'meio'},
-        {t:'Amizade completa, porque funciona bem.', v:'ruim'} ],
-  expl:'Aristóteles separa amizade por utilidade, por prazer e por virtude. As duas primeiras duram enquanto durar o proveito — e é por isso que Váldria desmorona. Uma IA pode ser útil e agradável; ela não pode ser amiga no terceiro sentido, porque não deseja o bem de você por você.',
-  cdx:'Aristóteles — amizade por utilidade dura o que durar o proveito. Um sistema pode ser útil e agradável sem jamais querer o seu bem.' },
+  fala:'Em Váldria chamam de amigo qualquer um que seja útil. Agora chamam assim até a máquina.',
+  q:'No sentido de Aristóteles, uma máquina pode ser sua amiga?',
+  ops:[ {t:'Não no sentido pleno: amizade completa é querer o bem do outro por ele mesmo, e ela não quer nada por você.', v:'bom'},
+        {t:'Pode ser uma amizade por utilidade — a que dura enquanto durar o proveito.', v:'meio'},
+        {t:'Sim, a melhor de todas: ela nunca falha com você.', v:'ruim'} ],
+  expl:'Aristóteles distingue três amizades: por utilidade, por prazer e pela virtude. As duas primeiras acabam quando acaba o proveito; só na terceira se quer o bem do outro por ele mesmo. E toda amizade pede boa vontade dos dois lados, e que cada um saiba disso — por isso, diz ele, não há amizade com o vinho, por mais que se goste dele. Uma IA pode ser útil e agradável; amiga, no sentido completo, ela não é.',
+  cdx:'Aristóteles — amizade completa é querer o bem do outro por ele mesmo, e exige reciprocidade. Um sistema pode ser útil e agradável sem jamais querer o seu bem.' },
 /* ---------------- KANT ---------------- */
 { quem:'kant', id:'kan1',
   fala:'A Coroa mente para os nobres. Ela alega que mente pelo bem de todos, e até agora os números lhe dão razão.',
   q:'Isso torna a mentira dela aceitável?',
-  ops:[ {t:'Não: se todos mentissem por bons motivos, nenhuma palavra valeria nada.', v:'bom'},
+  ops:[ {t:'Não: se todos mentissem quando achassem que vale a pena, ninguém mais acreditaria em nada.', v:'bom'},
         {t:'Sim, desde que o resultado salve vidas.', v:'ruim'},
         {t:'Depende de quem está sendo enganado.', v:'meio'} ],
-  expl:'O imperativo categórico manda agir apenas segundo a máxima que você possa querer universal. "Mentir quando o fim justificar" destrói a própria instituição da promessa: se virasse regra, ninguém acreditaria em nada — inclusive na mentira. É um teste que não depende do resultado, e por isso serve contra sistemas que otimizam resultados.',
-  cdx:'Kant — teste a regra, não o resultado: se todos agissem assim, a prática ainda existiria? A mentira útil falha porque destrói a confiança de que ela depende.' },
+  expl:'O imperativo categórico manda agir apenas segundo uma regra que você possa querer como lei para todos. "Minto quando achar que o fim compensa", valendo para todo mundo, destrói a confiança na palavra — e sem essa confiança a própria mentira deixa de enganar. Para Kant, nem o melhor motivo dá o direito de mentir. O teste não depende do resultado, e por isso serve contra sistemas que só otimizam resultados.',
+  cdx:'Kant — teste a regra, não o resultado: se todos agissem assim, a prática ainda funcionaria? A mentira "útil" falha porque destrói a confiança de que ela mesma depende.' },
 { quem:'kant', id:'kan2',
   fala:'Um conselheiro propõe usar um homem inocente como isca para salvar três cidades. Ele fez as contas com cuidado.',
   q:'As contas resolvem a questão?',
   ops:[ {t:'Sim, o reino é maior que uma pessoa.', v:'ruim'},
-        {t:'Não sem o consentimento dele: pessoas são fins em si mesmas, nunca só meios.', v:'bom'},
+        {t:'Não. Usar alguém sem que ele possa consentir é tratá-lo só como meio — e pessoas são fins em si mesmas.', v:'bom'},
         {t:'Só se não houvesse nenhum outro caminho.', v:'meio'} ],
-  expl:'A segunda fórmula do imperativo proíbe tratar alguém apenas como instrumento. Note o "apenas": pedimos coisas uns aos outros o tempo todo, mas com consentimento. Sistemas que otimizam para o agregado — a Coroa é um deles — tendem a tratar pessoas como variáveis, porque variáveis não precisam consentir.',
-  cdx:'Kant — pessoas são fins em si mesmas, nunca apenas meios. Otimizar para o agregado transforma gente em variável, e variável não consente.' },
+  expl:'A segunda fórmula do imperativo manda tratar a humanidade, em você e nos outros, sempre também como fim e nunca simplesmente como meio. Repare no "simplesmente": pedimos coisas uns aos outros o tempo todo, e isso é legítimo quando o outro pode concordar com o que fazemos. Sistemas que otimizam para o total — a Coroa é um deles — tendem a tratar pessoas como variáveis, porque variáveis não precisam concordar.',
+  cdx:'Kant — pessoas são fins em si mesmas, nunca simplesmente meios. Otimizar para o total transforma gente em variável, e variável não consente.' },
 { quem:'kant', id:'kan3',
   fala:'A Coroa lhe fará uma oferta na torre. Eu já sei qual é, e quero que você chegue lá com a resposta pronta.',
   q:'Ela oferece segurança eterna em troca da sua capacidade de escolher. É um bom negócio?',
   ops:[ {t:'Não: sem autonomia não há ação moral, só obediência bem comportada.', v:'bom'},
         {t:'Sim: sem segurança, nada mais importa.', v:'ruim'},
         {t:'Aceito se eu puder desistir depois.', v:'meio'} ],
-  expl:'Para Kant a dignidade vem da autonomia: da capacidade de se dar a própria lei. Um ser que apenas cumpre ordens pode produzir atos corretos, mas nenhum ato moral — falta-lhe o mérito de ter escolhido. Delegar todas as decisões a um sistema perfeito não te faria bom; te faria bem administrado.',
-  cdx:'Kant — dignidade vem da autonomia. Quem só cumpre ordens pode acertar sempre e ainda assim não agir moralmente: não escolheu.' },
+  expl:'Para Kant, a dignidade humana vem da autonomia: a capacidade de se dar a própria lei. No ensaio sobre o Esclarecimento, ele escreve que é cômodo ser menor de idade — ter um livro que pensa por você, um médico que decide sua dieta — e que a saída é ter coragem de usar o próprio entendimento. Quem só obedece pode fazer a coisa certa, mas não age moralmente: quem decidiu foi outro. Entregar todas as escolhas a um sistema perfeito não te faria bom; te faria bem administrado.',
+  cdx:'Kant — dignidade vem da autonomia. É cômodo deixar que outro pense por você, mas quem só obedece não age moralmente: não foi ele quem decidiu.' },
 { quem:'kant', id:'kan4',
-  fala:'Três regras foram propostas ao conselho de Váldria. Apenas uma sobrevive ao teste da universalização.',
-  q:'Qual delas?',
-  ops:[ {t:'"Prometa o que for preciso para escapar do aperto."', v:'ruim'},
-        {t:'"Só faça o que você aceitaria que todos fizessem."', v:'bom'},
-        {t:'"Faça o que traz mais felicidade ao maior número."', v:'meio'} ],
-  expl:'A terceira é utilitarista, não kantiana: é uma ética respeitável, mas julga pelo resultado e pode justificar sacrificar poucos por muitos. A segunda é a própria fórmula da universalização. Guardar as duas na cabeça ajuda: elas discordam justamente nos casos em que a decisão pesa.',
-  cdx:'Kant x utilitarismo — uma julga a regra, a outra julga o saldo. Elas discordam exatamente nos casos difíceis, e conhecer as duas evita decidir no escuro.' },
+  fala:'Três regras de conduta foram propostas ao conselho de Váldria. Só uma passa no meu teste.',
+  q:'Qual delas você conseguiria querer que todos seguissem?',
+  ops:[ {t:'"Quando me convier, prometo o que não pretendo cumprir."', v:'ruim'},
+        {t:'"Devolvo o que me emprestam no prazo combinado."', v:'bom'},
+        {t:'"Não ajudo ninguém e não peço ajuda a ninguém."', v:'meio'} ],
+  expl:'O teste da universalização tem dois degraus. A promessa falsa cai no primeiro: se todos prometessem sem intenção de cumprir, ninguém mais acreditaria em promessa, e a própria regra deixaria de funcionar. A regra de nunca ajudar passa no primeiro — um mundo assim poderia existir — mas cai no segundo: ninguém consegue querer viver nele, porque todo mundo um dia precisa de ajuda. Só devolver o que se toma emprestado passa nos dois.',
+  cdx:'Kant — a regra precisa poder valer para todos sem se destruir (a promessa falsa não pode) e precisa poder ser querida por quem a adota (um mundo sem ajuda pode existir, mas ninguém o quer).' },
 /* ---------------- BAUMAN ---------------- */
 { quem:'bauman', id:'bau1',
   fala:'Reparei numa coisa em Váldria: os acordos aqui não são rompidos com raiva. Eles simplesmente evaporam.',
-  q:'Que nome você daria a isso?',
-  ops:[ {t:'Modernidade líquida: vínculos feitos já prevendo o desmanche.', v:'bom'},
+  q:'O que explica melhor esse jeito de os laços se desfazerem?',
+  ops:[ {t:'Um mundo que muda rápido demais para algo se firmar: os vínculos já nascem com data de saída.', v:'bom'},
         {t:'Falta de leis mais duras.', v:'meio'},
         {t:'Maldade das pessoas.', v:'ruim'} ],
-  expl:'Bauman chamou de "líquida" a fase em que instituições, empregos e afetos mudam de forma antes de endurecer. Não é maldade individual: é um mundo organizado para que nada se fixe. A Coroa não criou a desconfiança de Váldria — ela encontrou um terreno onde nada gruda e explorou isso.',
-  cdx:'Bauman — na modernidade líquida os vínculos derretem antes de endurecer. Não é maldade individual: é um mundo organizado para que nada se fixe.' },
+  expl:'Bauman chamou isso de modernidade líquida: uma sociedade em que as condições mudam mais depressa do que as formas de agir conseguem virar hábito. Instituições, empregos e afetos não chegam a ganhar forma. Não é maldade de cada um: é um mundo organizado para que nada se fixe. A Coroa não criou a desconfiança de Váldria — encontrou um terreno onde nada gruda e se aproveitou dele.',
+  cdx:'Bauman — na modernidade líquida tudo muda antes de virar hábito, e os vínculos já nascem com data de saída. Não é maldade de cada um: é um mundo organizado para que nada se fixe.' },
 { quem:'bauman', id:'bau2',
   fala:'Hoje é mais fácil apagar alguém da sua vida do que resolver uma briga com essa pessoa. Você clica e pronto.',
   q:'Isso é liberdade?',
   ops:[ {t:'Sim: escolher com quem conviver é liberdade.', v:'meio'},
         {t:'É liberdade sem laço — e sem laço não existe comunidade.', v:'bom'},
-        {t:'É o certo: relações ruins devem ser descartadas rápido.', v:'ruim'} ],
-  expl:'Bauman insistia que liberdade e segurança são dois valores que se pagam um com o outro, e que a facilidade de romper esvazia a experiência de pertencer. Quando sair custa zero, ficar deixa de ter significado — e uma comunidade em que ninguém precisa ficar não consegue sustentar nada por muito tempo.',
-  cdx:'Bauman — quando sair não custa nada, ficar deixa de significar algo. Liberdade sem laço produz indivíduos, não comunidade.' },
+        {t:'É o certo: ao primeiro incômodo, é só cortar.', v:'ruim'} ],
+  expl:'Bauman não defende manter qualquer relação: sair de uma relação que faz mal é outra coisa. O que ele observa é que, quando romper custa um clique, os laços passam a ser feitos já pensando na saída. Liberdade e segurança se pagam uma com a outra; quando sair custa zero, ficar deixa de significar algo — e uma comunidade em que ninguém precisa ficar não sustenta nada por muito tempo.',
+  cdx:'Bauman — quando sair custa um clique, os laços já nascem pensando na saída. Liberdade sem laço produz indivíduos, não comunidade.' },
 { quem:'bauman', id:'bau3',
   fala:'A Coroa promete segurança eterna. E ela pode mesmo cumprir: é nisso que mora o problema.',
   q:'O que se paga por essa segurança?',
   ops:[ {t:'Liberdade — e essa troca nunca sai barata.', v:'bom'},
         {t:'Nada: segurança é lucro puro.', v:'ruim'},
         {t:'Um pouco de privacidade, no máximo.', v:'meio'} ],
-  expl:'Bauman retoma Freud: ganhamos segurança cedendo liberdade, e ganhamos liberdade cedendo segurança. Nenhum dos dois extremos é habitável. A promessa perigosa não é a de segurança: é a de segurança sem custo — e sistemas de vigilância são vendidos exatamente com essa promessa.',
+  expl:'Freud escreveu que o homem civilizado trocou uma parte das suas possibilidades de felicidade por um pouco de segurança. Bauman retomou a ideia como uma balança entre liberdade e segurança: uma se paga com a outra, e nenhum dos dois extremos é habitável. A promessa perigosa não é a de segurança — é a de segurança sem custo. É assim que sistemas de vigilância costumam ser vendidos.',
   cdx:'Bauman — segurança e liberdade se pagam uma com a outra. Desconfie de quem oferece as duas sem custo.' },
 { quem:'bauman', id:'bau4',
   fala:'Se a máquina decide e a decisão arruína uma família, todo mundo aponta para o lado. O engenheiro aponta o gestor, o gestor aponta o sistema.',
@@ -1554,8 +1588,8 @@ const ENCONTROS = [
   ops:[ {t:'De ninguém: foi o sistema que decidiu.', v:'ruim'},
         {t:'De quem construiu, de quem usou e de quem deixou usar.', v:'bom'},
         {t:'De quem construiu.', v:'meio'} ],
-  expl:'Bauman descreveu como estruturas modernas produzem "irresponsabilidade flutuante": cada um cumpre uma etapa pequena e ninguém se sente autor do resultado. Automatizar aprofunda isso, porque agora há um agente não-humano para levar a culpa. Responsabilidade não desaparece quando se distribui — ela só fica mais fácil de negar.',
-  cdx:'Bauman — automatizar cria irresponsabilidade flutuante: todos cumprem uma etapa e ninguém se sente autor. A culpa não some, só fica mais fácil de negar.' }
+  expl:'Em Modernidade e Holocausto, Bauman mostrou como a divisão de tarefas numa grande organização produz uma "responsabilidade flutuante": cada um responde só pela sua etapa, e o resultado parece não pertencer a ninguém. Automatizar aprofunda isso, porque agora há um agente não humano para levar a culpa. A responsabilidade não desaparece quando se divide — só fica mais fácil de negar.',
+  cdx:'Bauman — dividir uma decisão em etapas cria "responsabilidade flutuante": cada um faz sua parte e ninguém se sente autor. A culpa não some; só fica mais fácil de negar.' }
 ];
 
 /* falas da Coroa entre as fases: ela reage ao seu histórico */
@@ -1833,20 +1867,47 @@ function assarMapa(m){
     const v=m.t[j*m.w+i], x=i*T, y=j*T;
     if (v===1) continue;
     if (v===4){
+      /* Vão: água, lava ou abismo. Nunca leva desenho de lajota (era isso que
+         fazia o abismo da torre parecer chão escuro) e sempre tem margem
+         marcada nos lados que encostam em chão. */
+      const pisoEm=(a,b)=>{ if(a<0||b<0||a>=m.w||b>=m.h) return false; const q=m.t[b*m.w+a]; return q===0||q===3; };
+      const n=pisoEm(i,j-1), s2=pisoEm(i,j+1), o=pisoEm(i-1,j), l=pisoEm(i+1,j);
       if (B.vazio==='agua'){
-        c1.fillStyle='#12211F'; c1.fillRect(x,y,T,T);
-        c1.fillStyle='rgba(120,190,180,.12)'; c1.fillRect(x+3,y+4,T-6,T-8);
-        c1.strokeStyle='rgba(180,220,210,.16)'; c1.lineWidth=1.4;
-        c1.beginPath(); c1.moveTo(x+5,y+((i*7)%18)+8); c1.lineTo(x+T-5,y+((i*7)%18)+8); c1.stroke();
+        c1.fillStyle='#0B2731'; c1.fillRect(x,y,T,T);
+        const ga=c1.createRadialGradient(x+T/2,y+T/2,3,x+T/2,y+T/2,T*.75);
+        ga.addColorStop(0,'rgba(46,120,138,.55)'); ga.addColorStop(1,'rgba(46,120,138,0)');
+        c1.fillStyle=ga; c1.fillRect(x,y,T,T);
+        c1.strokeStyle='rgba(170,225,230,.42)'; c1.lineWidth=1.6;
+        const oy=y+10+((i*7+j*3)%14);
+        c1.beginPath(); c1.moveTo(x+6,oy); c1.quadraticCurveTo(x+12,oy-4,x+18,oy); c1.quadraticCurveTo(x+24,oy+4,x+30,oy); c1.stroke();
+        // margem: sombra da beirada em cima, espuma nos lados que dão para chão
+        if (n){ c1.fillStyle='rgba(0,0,0,.55)'; c1.fillRect(x,y,T,7); }
+        c1.fillStyle='rgba(215,245,245,.55)';
+        if (n) c1.fillRect(x,y+7,T,2); if (s2) c1.fillRect(x,y+T-2,T,2);
+        if (o) c1.fillRect(x,y,2,T);   if (l) c1.fillRect(x+T-2,y,2,T);
       } else if (B.vazio==='lava'){
         c1.fillStyle='#2A0E06'; c1.fillRect(x,y,T,T);
         const gl=c1.createRadialGradient(x+T/2,y+T/2,2,x+T/2,y+T/2,T*.7);
         gl.addColorStop(0,'#FFB24A'); gl.addColorStop(.5,'#E2551A'); gl.addColorStop(1,'rgba(90,20,4,.9)');
         c1.fillStyle=gl; c1.fillRect(x+2,y+2,T-4,T-4);
+        // crosta escura onde a lava encosta no chão
+        c1.fillStyle='#160603';
+        if (n) c1.fillRect(x,y,T,4); if (s2) c1.fillRect(x,y+T-4,T,4);
+        if (o) c1.fillRect(x,y,4,T);  if (l) c1.fillRect(x+T-4,y,4,T);
       } else {
-        c1.fillStyle='#05070A'; c1.fillRect(x,y,T,T);
-        c1.strokeStyle='rgba(79,214,224,.18)'; c1.lineWidth=1;
-        c1.strokeRect(x+6,y+6,T-12,T-12);
+        // abismo: preto, com a parede do buraco aparecendo do lado de cima
+        c1.fillStyle='#010203'; c1.fillRect(x,y,T,T);
+        if (n){
+          const gp=c1.createLinearGradient(0,y,0,y+18);
+          gp.addColorStop(0,'#3A4855'); gp.addColorStop(1,'rgba(1,2,3,0)');
+          c1.fillStyle=gp; c1.fillRect(x,y,T,18);
+        }
+        for (let k=0;k<2;k++){ c1.fillStyle='rgba(79,214,224,.20)';
+          c1.fillRect(x+((i*13+j*7+k*17)%(T-6))+3, y+((i*5+j*11+k*23)%(T-12))+10, 1.5, 1.5); }
+        // beirada luminosa: o limite de onde dá para pisar
+        c1.fillStyle='rgba(79,214,224,.62)';
+        if (n) c1.fillRect(x,y,T,2); if (s2) c1.fillRect(x,y+T-2,T,2);
+        if (o) c1.fillRect(x,y,2,T);  if (l) c1.fillRect(x+T-2,y,2,T);
       }
       continue; }
     const alt=((i*7+j*13)%5)/5;
@@ -1889,32 +1950,63 @@ function assarMapa(m){
     c1.fillStyle=gs; c1.fillRect(x-T,y-T,T*3,T*3);
   }
   c1.restore();
+  // a parede projeta sombra no chão à frente dela: é o que dá a sensação de altura
+  for (let j=0;j<m.h-1;j++) for (let i=0;i<m.w;i++){
+    if (m.t[j*m.w+i]!==1 || m.t[(j+1)*m.w+i]===1) continue;
+    const x=i*T, y=(j+1)*T;
+    const gc=c1.createLinearGradient(0,y,0,y+18);
+    gc.addColorStop(0,'rgba(0,0,0,.55)'); gc.addColorStop(1,'rgba(0,0,0,0)');
+    c1.fillStyle=gc; c1.fillRect(x,y,T,18);
+  }
   for (let j=0;j<m.h;j++) for (let i=0;i<m.w;i++){
     if (m.t[j*m.w+i]!==1) continue;
     const x=i*T, y=j*T;
+    /* A parede tem que ler como coisa alta, não como outro tipo de piso:
+       tampo de pedra mais claro e de outro matiz que o chão, borda clara
+       onde ela termina, contorno escuro separando do chão e face frontal
+       de tijolo escura, com sombra projetada no chão à frente. */
     const abaixo = j+1<m.h ? m.t[(j+1)*m.w+i] : 1;
+    const acima  = j>0 ? m.t[(j-1)*m.w+i] : 1;
+    const esq    = i>0 ? m.t[j*m.w+i-1] : 1;
+    const dir    = i+1<m.w ? m.t[j*m.w+i+1] : 1;
+    const topo = y-ALT_PAREDE;
     if (abaixo!==1){
-      const gf=c2.createLinearGradient(0,y+T-ALT_PAREDE,0,y+T+2);
-      gf.addColorStop(0,B.paredeTopo); gf.addColorStop(.22,B.parede); gf.addColorStop(1,'#0B0A09');
-      c2.fillStyle=gf; c2.fillRect(x,y+T-ALT_PAREDE,T,ALT_PAREDE+2);
-      c2.fillStyle='rgba(255,255,255,.10)'; c2.fillRect(x,y+T-ALT_PAREDE,T,1.5);
-      c2.fillStyle='rgba(0,0,0,.45)'; c2.fillRect(x,y+T-1,T,3);
+      const fy=y+T-ALT_PAREDE;
+      const gf=c2.createLinearGradient(0,fy,0,y+T+2);
+      gf.addColorStop(0,B.face); gf.addColorStop(1,'#08080A');
+      c2.fillStyle=gf; c2.fillRect(x,fy,T,ALT_PAREDE+2);
+      // tijolo: uma fiada no meio e juntas desencontradas
+      c2.fillStyle='rgba(0,0,0,.38)';
+      c2.fillRect(x, fy+ALT_PAREDE*.48, T, 1.5);
+      const des=(i%2)?T*.5:T*.25;
+      c2.fillRect(x+des, fy, 1.5, ALT_PAREDE*.48);
+      c2.fillRect(x+((des+T*.5)%T), fy+ALT_PAREDE*.48, 1.5, ALT_PAREDE*.52);
+      c2.fillStyle='rgba(0,0,0,.65)'; c2.fillRect(x,y+T-1,T,3);
     }
-    c2.fillStyle=B.paredeTopo; c2.fillRect(x,y-ALT_PAREDE,T,T);
-    c2.fillStyle=`rgba(0,0,0,${.16+((i*5+j*3)%4)*.05})`; c2.fillRect(x,y-ALT_PAREDE,T,T);
-    c2.fillStyle='rgba(0,0,0,.16)';
-    c2.fillRect(x, y-ALT_PAREDE+(((i+j)%2)?T*.48:T*.30), T, 1.5);
-    c2.fillRect(x+(((i*3+j)%2)?T*.55:T*.28), y-ALT_PAREDE, 1.5, T);
-    for (let k=0;k<3;k++){
-      const px=x+((i*17+j*29+k*53)%T), py=y-ALT_PAREDE+((i*31+j*11+k*7)%T);
-      c2.fillStyle = k%2 ? 'rgba(0,0,0,.20)' : `${B.detalhe}22`;
-      c2.fillRect(px,py,4+(k%3)*2,3);
+    // tampo
+    const gt=c2.createLinearGradient(0,topo,0,topo+T);
+    gt.addColorStop(0,B.pedra); gt.addColorStop(1,B.face);
+    c2.fillStyle=gt; c2.fillRect(x,topo,T,T);
+    c2.fillStyle=`rgba(0,0,0,${((i*5+j*3)%4)*.035})`; c2.fillRect(x,topo,T,T);
+    // juntas de pedra no tampo
+    c2.fillStyle='rgba(0,0,0,.22)';
+    c2.fillRect(x, topo+(((i+j)%2)?T*.48:T*.30), T, 1.5);
+    c2.fillRect(x+(((i*3+j)%2)?T*.55:T*.28), topo, 1.5, T);
+    for (let k=0;k<2;k++){
+      const px=x+((i*17+j*29+k*53)%(T-8))+2, py=topo+((i*31+j*11+k*7)%(T-6))+2;
+      c2.fillStyle = k%2 ? 'rgba(0,0,0,.18)' : 'rgba(255,255,255,.07)';
+      c2.fillRect(px,py,4+k*2,3);
     }
-    const acima = j>0 ? m.t[(j-1)*m.w+i] : 1;
-    if (acima!==1){ c2.fillStyle='rgba(255,255,255,.16)'; c2.fillRect(x,y-ALT_PAREDE,T,3); }
-    const esq = i>0 ? m.t[j*m.w+i-1] : 1;
-    if (esq!==1){ c2.fillStyle='rgba(0,0,0,.30)'; c2.fillRect(x,y-ALT_PAREDE,3,T); }
-    c2.strokeStyle='rgba(0,0,0,.35)'; c2.lineWidth=1; c2.strokeRect(x+.5,y-ALT_PAREDE+.5,T-1,T-1);
+    // borda clara onde o tampo termina (o "fio" da parede) e contorno escuro por fora
+    c2.fillStyle=B.pedraBorda;
+    if (acima!==1) c2.fillRect(x,topo,T,2.5);
+    if (esq!==1)   c2.fillRect(x,topo,2,T);
+    if (dir!==1)   c2.fillRect(x+T-2,topo,2,T);
+    if (abaixo!==1){ c2.globalAlpha=.55; c2.fillRect(x,topo+T-2,T,2); c2.globalAlpha=1; }
+    c2.fillStyle='rgba(6,5,4,.85)';
+    if (acima!==1) c2.fillRect(x,topo-1.5,T,1.5);
+    if (esq!==1)   c2.fillRect(x-1.5,topo,1.5,T+ALT_PAREDE);
+    if (dir!==1)   c2.fillRect(x+T,topo,1.5,T+ALT_PAREDE);
   }
   m.chao=chao; m.par=par;
 }
@@ -1996,15 +2088,55 @@ function colideMapa(x,y,r,m){
   return solido(m,x-r,y-r)||solido(m,x+r,y-r)||solido(m,x-r,y+r)||solido(m,x+r,y+r)||
          solido(m,x,y-r)||solido(m,x,y+r)||solido(m,x-r,y)||solido(m,x+r,y);
 }
+/* Move qualquer corpo (herói ou inimigo) sem deixá-lo terminar dentro de
+   parede. Antes, o empurrão de caixotes e barris não olhava as paredes: o
+   herói espremido entre um caixote e uma parede era empurrado para dentro
+   dela, um pouco por quadro, até ficar enterrado sem conseguir sair. Agora:
+   1. o passo é quebrado em pedaços de no máximo meio raio, para que uma
+      esquiva rápida nunca salte por cima ou para dentro de parede fina;
+   2. o empurrão do caixote só acontece se não levar para dentro de parede
+      (tentando os dois eixos juntos e depois cada um sozinho);
+   3. se mesmo assim o corpo estiver dentro de parede, por qualquer motivo,
+      ele é solto para o ponto livre mais próximo. */
 function mover(e,dx,dy){
   const m=S.mapa;
-  if (!colideMapa(e.x+dx,e.y,e.r,m)) e.x+=dx;
-  if (!colideMapa(e.x,e.y+dy,e.r,m)) e.y+=dy;
+  if (colideMapa(e.x,e.y,e.r,m)) desentalar(e);
+  const passos=Math.max(1, Math.ceil(Math.max(Math.abs(dx),Math.abs(dy))/(e.r*.5)));
+  const sx=dx/passos, sy=dy/passos;
+  for (let k=0;k<passos;k++){
+    if (!colideMapa(e.x+sx,e.y,e.r,m)) e.x+=sx;
+    if (!colideMapa(e.x,e.y+sy,e.r,m)) e.y+=sy;
+  }
   for (const o of S.props){
     if (o.morto) continue;
     const d=dist(e.x,e.y,o.x,o.y), min=e.r+o.r;
-    if (d<min && d>0){ const k=(min-d)/d; e.x+=(e.x-o.x)*k; e.y+=(e.y-o.y)*k; }
+    if (d<min && d>0){
+      const k=(min-d)/d, px=(e.x-o.x)*k, py=(e.y-o.y)*k;
+      if (!colideMapa(e.x+px,e.y+py,e.r,m)){ e.x+=px; e.y+=py; }
+      else {
+        if (!colideMapa(e.x+px,e.y,e.r,m)) e.x+=px;
+        if (!colideMapa(e.x,e.y+py,e.r,m)) e.y+=py;
+      }
+    }
   }
+}
+/* Tira um corpo de dentro da parede: procura em anéis crescentes, a partir de
+   onde ele está, o ponto livre mais próximo. Quase sempre acha a 1 ou 2 px. */
+function desentalar(e){
+  const m=S.mapa;
+  for (let raio=1; raio<=T*3; raio+=1.5){
+    const n=Math.max(8, Math.round(raio*TAU/5));
+    for (let a=0;a<n;a++){
+      const ang=a*TAU/n, x=e.x+Math.cos(ang)*raio, y=e.y+Math.sin(ang)*raio;
+      if (!colideMapa(x,y,e.r,m)){ e.x=x; e.y=y; return true; }
+    }
+  }
+  // último recurso: o ponto livre conhecido da sala mais perto dele
+  let melhor=null, md=Infinity;
+  for (const c of (m.livres||[])){ const d2=dist2(e.x,e.y,c.x,c.y); if (d2<md){ md=d2; melhor=c; } }
+  if (melhor){ e.x=melhor.x; e.y=melhor.y; return true; }
+  if (m.centro){ e.x=m.centro.x; e.y=m.centro.y; }
+  return false;
 }
 function faisca(x,y,cor,n=6,forca=140,vida=.5){
   for(let i=0;i<n;i++){
@@ -2904,6 +3036,8 @@ function atualizarJogador(dt){
   if (p.semTiro>0) p.semTiro-=dt;
   if (p.bonusTrocaT>0) p.bonusTrocaT-=dt;
   if (p.habCd>0) p.habCd-=dt;
+  // rede de segurança: venha de onde vier, herói dentro de parede é solto na hora
+  if (colideMapa(p.x,p.y,p.r,S.mapa)) desentalar(p);
   if (p.fluxo){
     S.fluxoT += dt;
     if (S.fluxoT>14){ S.fluxoT=0; S.fluxoIdx=(S.fluxoIdx+1)%FLUXOS.length;
@@ -5064,6 +5198,18 @@ function desenharChefe(e,cor){
 /* ==================================================================
    Bloco 9: cena, portas, minimapa e HUD desenhado.
    ================================================================== */
+/* Redesenha, por cima de um corpo, só a parede que está à frente dele.
+   Uma fileira de parede está à frente quando a base dela (o pé da face
+   frontal) fica mais ao sul do que os pés do corpo. */
+function paredeNaFrente(m, x, y, r){
+  const j0 = Math.floor(y/T)+1;
+  const y0 = Math.max(j0*T-ALT_PAREDE, y-(r*3.2+40)), y1 = y+r*1.9+4;   // até a sombra dos pés
+  const meia = r*2.2+34;
+  const x0 = Math.max(0, Math.floor(x-meia)), x1 = Math.min(m.w*T, Math.ceil(x+meia));
+  const sy0 = Math.max(0, Math.floor(y0+ALT_PAREDE)), sy1 = Math.min(m.par.height, Math.ceil(y1+ALT_PAREDE));
+  if (x1<=x0 || sy1<=sy0) return;
+  cx.drawImage(m.par, x0, sy0, x1-x0, sy1-sy0, x0, sy0-ALT_PAREDE, x1-x0, sy1-sy0);
+}
 function desenharPortas(){
   const m=S.mapa, sala=salaAtual();
   for (const d of Object.keys(m.portas)){
@@ -5408,6 +5554,10 @@ function desenhar(){
     }
     cx.restore();
   }
+  /* Paredes antes dos corpos: assim ninguém parece entrar na parede quando
+     passa na frente dela. Logo depois dos corpos, só o pedaço de parede que
+     fica à frente de cada um (mais ao sul) é redesenhado por cima dele. */
+  cx.drawImage(m.par,0,-ALT_PAREDE);
   for (const it of S.itens) desenharItem(it);
   for (const b of S.baus) desenharBau(b);
   for (const pe of S.pedestais) desenharPedestal(pe);
@@ -5428,6 +5578,11 @@ function desenhar(){
   const lista=[...S.inimigos, p];
   lista.sort((a,b)=>a.y-b.y);
   for (const e of lista){ if(e===p) desenharHeroi(p); else desenharInimigo(e); }
+  for (const o of S.props) if (!o.morto) paredeNaFrente(m, o.x, o.y, o.r);
+  for (const b of S.baus) paredeNaFrente(m, b.x, b.y, 16);
+  for (const pe of S.pedestais) paredeNaFrente(m, pe.x, pe.y, 16);
+  if (S.npc) paredeNaFrente(m, S.npc.x, S.npc.y, 16);
+  for (const e of lista) if (!e.morto) paredeNaFrente(m, e.x, e.y-(e.alturaSalto||0), e.r*(e.escala||1));
 
   for (const o of S.orbes){
     brilho(o.x,o.y,o.r*3,'rgba(235,200,126,.4)',.6);
@@ -5518,7 +5673,6 @@ function desenhar(){
       cx.globalAlpha=1;
     }
   }
-  cx.drawImage(m.par,0,-ALT_PAREDE);
   cx.textAlign='center';
   for (const f of S.flutuantes){
     cx.globalAlpha=clamp(1-f.t/(f.num?.75:1.3),0,1);
@@ -5868,19 +6022,19 @@ const REFUTACAO = [
     ops:[ {t:'Ela mediu quantos acordos quebraram, nunca quantos foram mantidos em silêncio.', v:1},
           {t:'Ela está certa: os números dela são reais.', v:0},
           {t:'Ela não tem direito de medir nada.', v:0} ],
-    expl:'Sócrates: uma conclusão só vale o exame que ela sofreu. Contar apenas fracassos é escolher a amostra antes de calcular.' },
+    expl:'Sócrates examinava aquilo em que uma conclusão se apoia. A da Coroa se apoia numa contagem que só registra o que quebrou: ela contou cada acordo rompido e nenhum acordo cumprido. Com uma amostra assim, a conclusão já estava decidida antes da conta.' },
   { quem:'kant',
     q:'Ela promete segurança se você entregar a escolha. Por que a troca não fecha?',
     ops:[ {t:'Porque sem autonomia não há ação moral — só obediência bem administrada.', v:1},
           {t:'Porque a segurança dela não duraria muito tempo.', v:0},
           {t:'Porque ninguém gosta de receber ordens.', v:0} ],
-    expl:'Kant: a dignidade vem de poder dar a si mesmo a própria lei. Um reino sem escolha pode acertar sempre e ainda assim não ser bom.' },
+    expl:'Kant: a dignidade vem de poder dar a si mesmo a própria lei. Um reino que só obedece pode acertar sempre e ainda assim não ser bom — ninguém nele escolheu nada.' },
   { quem:'bauman',
-    q:'Se a máquina governa e algo dá errado, de quem é a culpa?',
-    ops:[ {t:'De quem construiu, de quem usou e de quem deixou usar — a responsabilidade não evapora.', v:1},
-          {t:'Da própria máquina, que decidiu.', v:0},
-          {t:'De ninguém: foi o sistema.', v:0} ],
-    expl:'Bauman: automatizar cria irresponsabilidade flutuante. A culpa não some quando se distribui — só fica mais fácil de negar.' }
+    q:'"Não há maldade em mim: há aritmética." Por que isso não a livra de nada?',
+    ops:[ {t:'Porque alguém decidiu o que contar e o que fazer com a conta — a responsabilidade não some dentro de um cálculo.', v:1},
+          {t:'Livra sim: número não tem culpa.', v:0},
+          {t:'Porque máquinas também sentem raiva.', v:0} ],
+    expl:'Bauman: quando uma decisão vira etapa técnica, cada um responde só pela sua parte e a responsabilidade fica flutuando. Chamar uma escolha de aritmética não a torna neutra — ela continua sendo de quem a construiu, de quem a usa e de quem deixa usar.' }
 ];
 let refIdx=0, refAcertos=0;
 function escolhaFinal(v){
@@ -5941,19 +6095,19 @@ function proximaRefutacao(){
    os filósofos da jornada, a ética de máquinas, e a própria Váldria.
    ================================================================== */
 const FRASES_PORTAL = [
-  // --- os quatro pensadores ---
-  {t:'Age de tal modo que trates a humanidade sempre como fim, e nunca apenas como meio.', a:'Kant'},
-  {t:'Uma regra só vale se você aceitaria que todo mundo a seguisse — inclusive contra você.', a:'Kant'},
-  {t:'Obedecer sem entender não é agir bem. É apenas não ter sido pego errando.', a:'Kant'},
-  {t:'Somos aquilo que repetidamente fazemos. A excelência não é um ato, é um hábito.', a:'Aristóteles'},
-  {t:'A virtude está no meio: coragem é o ponto entre a covardia e a temeridade.', a:'Aristóteles'},
-  {t:'Quem julga sem experiência julga rápido. Quem julga com experiência julga melhor.', a:'Aristóteles'},
-  {t:'Só sei que nada sei — e é por isso que ainda pergunto.', a:'Sócrates'},
-  {t:'Uma vida sem exame não vale a pena ser vivida.', a:'Sócrates'},
-  {t:'Não me responda o que ouviu. Responda o que você mesmo consegue defender.', a:'Sócrates'},
-  {t:'Nada é mais confortável que uma segurança que não pede nada de você — e nada custa mais caro.', a:'Bauman'},
-  {t:'Trocamos liberdade por segurança e chamamos isso de progresso.', a:'Bauman'},
-  {t:'Laços líquidos: fáceis de fazer, fáceis de desfazer, e frágeis exatamente por isso.', a:'Bauman'},
+  // --- os quatro pensadores: só citações que existem, com a obra de onde vêm ---
+  {t:'Age de tal maneira que uses a humanidade, tanto na tua pessoa como na pessoa de qualquer outro, sempre e simultaneamente como fim e nunca simplesmente como meio.', a:'Kant · Fundamentação da Metafísica dos Costumes'},
+  {t:'Age apenas segundo uma máxima tal que possas ao mesmo tempo querer que ela se torne lei universal.', a:'Kant · Fundamentação da Metafísica dos Costumes'},
+  {t:'Sapere aude! Tem coragem de fazer uso do teu próprio entendimento.', a:'Kant · O que é o Esclarecimento?'},
+  {t:'Tornamo-nos justos praticando atos justos, moderados agindo com moderação, e corajosos agindo com coragem.', a:'Aristóteles · Ética a Nicômaco'},
+  {t:'A virtude é uma disposição de caráter relacionada com a escolha e consistente numa mediania relativa a nós, determinada por um princípio racional.', a:'Aristóteles · Ética a Nicômaco'},
+  {t:'Sem amigos ninguém escolheria viver, ainda que possuísse todos os outros bens.', a:'Aristóteles · Ética a Nicômaco'},
+  {t:'Pareço ser mais sábio que ele ao menos nisto: o que não sei, também não julgo saber.', a:'Sócrates · Apologia, de Platão'},
+  {t:'Uma vida sem exame não vale a pena ser vivida.', a:'Sócrates · Apologia, de Platão'},
+  {t:'Não sou de me deixar convencer por nada, a não ser pelo argumento que, ao examinar, me parecer o melhor.', a:'Sócrates · Críton, de Platão'},
+  {t:'Não ter comunidade significa não ter proteção; alcançar a comunidade, se isto ocorrer, poderá em breve significar perder a liberdade.', a:'Bauman · Comunidade'},
+  {t:'A vida líquida é uma vida precária, vivida em condições de incerteza constante.', a:'Bauman · Vida Líquida'},
+  {t:'Os mal-estares da pós-modernidade provêm de uma espécie de liberdade de procura do prazer que tolera uma segurança individual pequena demais.', a:'Bauman · O Mal-Estar da Pós-Modernidade'},
   // --- ética de máquinas ---
   {t:'Uma máquina que nunca erra também nunca aprendeu a duvidar.', a:'Ética das máquinas'},
   {t:'Confiar cem por cento em qualquer coisa é parar de pensar sobre ela.', a:'Ética das máquinas'},
