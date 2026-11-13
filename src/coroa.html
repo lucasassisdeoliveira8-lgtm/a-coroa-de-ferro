@@ -689,7 +689,7 @@ addEventListener('keydown', e=>{
   if (IN.teclas[k]) { if([' ','arrowup','arrowdown','arrowleft','arrowright','tab'].includes(k)) e.preventDefault(); return; }
   IN.teclas[k] = true;
   if ([' ','arrowup','arrowdown','arrowleft','arrowright','tab'].includes(k)) e.preventDefault();
-  if (k==='escape') alternarPausa();
+  if (k==='escape' && !S.emCutscene) voltarUmaTela();
   if (k==='e') IN.usar = true;
   if (k==='shift'||k===' ') IN.dash = true;
   if (k==='q'||k==='f') IN.hab = true;
@@ -5756,6 +5756,7 @@ function desenharMinimapa(){
 const CAMADAS = ['menu','selecao','hud','dialogo','painel','codex','toque'];
 function mostrarTela(nome){
   S.tela=nome;
+  if (nome!=='menu') armarVolta();
   for (const c of CAMADAS) el(c).classList.remove('on');
   if (nome==='menu'){ const bc=el('btnContinuar'); if(bc) bc.style.display=(S.rodando&&S.p)?'':'none'; }
   setTimeout(ligarSomBotoes, 0);
@@ -6395,7 +6396,7 @@ function abrirOpcoes(volta){
         ${linha('botoesGrandes','Botões grandes','Aumenta os controles de toque')}
         <button class="opc" data-k="opacidade"><span>Transparência dos controles<small>Deixa os controles mais discretos sobre o jogo</small></span><span class="chave on">${OPC.opacidade}%</span></button>
       </div>`,
-    acoes:[{t:'Voltar', primaria:true, fn:()=>{ const v=voltaOpcoes; voltaOpcoes=null; v(); }}]
+    acoes:[{t:'Voltar', primaria:true, fn:()=>{ const v=voltaOpcoes||(()=>mostrarTela('menu')); voltaOpcoes=null; v(); }}]
   });
   el('pnCorpo').querySelectorAll('.opc').forEach(b=>{
     b.addEventListener('click', ()=>{
@@ -6451,7 +6452,7 @@ function renderCodex(){
     </div>`;
   }).join('');
 }
-el('cdxFechar').addEventListener('click', ()=>{ const v=codexVolta; codexVolta=null; v(); });
+el('cdxFechar').addEventListener('click', ()=>{ const v=codexVolta||(()=>mostrarTela('menu')); codexVolta=null; v(); });
 document.querySelectorAll('.cdx-aba').forEach(b=>
   b.addEventListener('click', ()=>{ cdxAba=b.dataset.aba; renderCodex(); SFX.moeda(); }));
 
@@ -6671,6 +6672,37 @@ function ligarSomBotoes(){
   });
 }
 const _mostrarTelaOrig = mostrarTela;
+
+/* ---------------- voltar do celular e tecla Esc ----------------
+   O gesto ou botão de voltar do Android (e o Esc no computador) faz o
+   mesmo que o botão de voltar da tela aberta. Antes, no app, ele fechava
+   o jogo inteiro. Funciona assim: fora do menu sempre existe uma entrada
+   a mais no histórico; o "voltar" do sistema consome essa entrada, o jogo
+   aperta o botão certo e arma de novo. No menu, o voltar sai do app. */
+function voltarUmaTela(){
+  const t=S.tela;
+  if (S.emCutscene) return true;
+  if (t==='jogo'){ if (S.rodando && !S.trans) alternarPausa(); return true; }
+  if (t==='menu') return false;
+  let cands=[];
+  if (t==='codex') cands=[el('cdxFechar')];
+  else if (t==='selecao') cands=[el('btnVoltarMenu')];
+  else if (t==='painel') cands=[...el('pnAcoes').querySelectorAll('.btn')];
+  const rx = S.pausaAberta ? /^(Continuar|Voltar|Fechar|Entendi)/i : /^(Voltar|Fechar|Entendi|Sair|Deixar como está|Menu)/i;
+  const b = cands.find(x=>x && rx.test(x.textContent.trim()));
+  if (b){ b.click(); return true; }
+  return false;   // diálogo com pensador, escolha de bênção, finais: não pula nada
+}
+var voltaArmada=false;
+function armarVolta(){
+  if (voltaArmada) return;
+  try { history.pushState({coroa:1}, ''); voltaArmada=true; } catch(e){}
+}
+addEventListener('popstate', ()=>{
+  voltaArmada=false;
+  voltarUmaTela();
+  if (S.tela!=='menu') armarVolta();
+});
 /* ---------------- botões ---------------- */
 el('btnJogar').addEventListener('click', ()=>{ audioLigar(); montarSelecao(); mostrarTela('selecao'); });
 el('btnContinuar').addEventListener('click', ()=>{ if(S.rodando){ audioLigar(); mostrarTela('jogo'); S.pausado=false; } });
